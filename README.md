@@ -1,4 +1,4 @@
-# Tajawal
+# Tajawul
 
 This repository contains an AI-powered **travel assistant** For Arab speaking countries with:
 -  **Recommender System** (Personalized travel suggestions)
