@@ -57,13 +57,13 @@ class InteractionsFetcher:
         # Neo4j query to fetch interactions for Trip, Destination, and Event nodes
         query = """
               MATCH (u:User)-[r]->(t:Trip)
-              RETURN u.id AS user, t.id AS item, 'Trip' AS item_type, type(r) AS interaction, t.title AS name
+              RETURN u.id AS user, t.id AS item, 'Trip' AS type, type(r) AS interaction, t.title AS name
               UNION ALL
               MATCH (u:User)-[r]->(d:Destination)
-              RETURN u.id AS user, d.id AS item, 'Destination' AS item_type, type(r) AS interaction, d.name AS name
+              RETURN u.id AS user, d.id AS item, 'Destination' AS type, type(r) AS interaction, d.name AS name
               UNION ALL
               MATCH (u:User)-[r]->(e:Event)
-              RETURN u.id AS user, e.id AS item, 'Event' AS item_type, type(r) AS interaction, e.name AS name
+              RETURN u.id AS user, e.id AS item, 'Event' AS type, type(r) AS interaction, e.name AS name
               """
 
         # Execute the query and fetch records
@@ -72,15 +72,15 @@ class InteractionsFetcher:
         # If no records returned, handle gracefully
         if not records:
             print("No interactions found.")
-            return pd.DataFrame(columns=["user", "item", "item_type", "interaction", "name", "weight"])
+            return pd.DataFrame(columns=["user", "item", "type", "interaction", "name", "weight"])
         # Prepare data from the fetched records
         data = [
-            (record["user"], record["item"], record["item_type"], record["interaction"], record["name"])
+            (record["user"], record["item"], record["type"], record["interaction"], record["name"])
             for record in records
         ]
 
         # Create DataFrame
-        df = pd.DataFrame(data, columns=["user", "item", "item_type", "interaction", "name"])
+        df = pd.DataFrame(data, columns=["user", "item", "type", "interaction", "name"])
 
         # Ensure categorical data types for user, item, and item_type
        
@@ -89,7 +89,7 @@ class InteractionsFetcher:
         df["weight"] = df["interaction"].map(interaction_weights).fillna(0.0)
 
         df['avg'] = df.groupby('user')['weight'].transform(lambda x: self.normalize(x))
-        df[["user", "item", "item_type"]] = df[["user", "item", "item_type"]].astype('category')
+        df[["user", "item", "type"]] = df[["user", "item", "type"]].astype('category')
 
 
         return df
@@ -241,31 +241,12 @@ if __name__ == "__main__":
     interaction_fetcher = InteractionsFetcher(db_client)
     print("Fetching interactions...")
     interactions_df = interaction_fetcher.fetch_interactions()
-    user_id_to_recommend =[
-                              '633af53b-f78c-474c-9324-2a734bd86d24',
-                               '65ab857a-6ff4-493f-aa8d-ddde6463cc20',
-                             
-
-                               '72effc5b-589a-4076-9be5-f7c3d8533f70',
-                               '8aaafb9e-0f60-47d1-9b98-1b171564fbf9',
-                           
-                            
-                             
-                               
-                               '841f7b4f-215d-472b-91f2-7241b64']                              
-    # Get recommendations for 'Trip'
-    for id in user_id_to_recommend:
-        top_trips = model.recommend(id, top_n=3, item_type='Trip')
-        print(f"Top Trip recommendations for user {id}:")
-        print(top_trips)
-    
-        # Get recommendations for 'Event'
-        top_events = model.recommend(id, top_n=3, item_type='Event')
-        print(f"Top Event recommendations for user {id}:")
-        print(top_events)
-    
-        # Get recommendations for 'Destination'
-        top_destinations = model.recommend(id, top_n=3, item_type='Destination')
-        print(f"Top Destination recommendations for user {id}:")
-        print(top_destinations)
+    print("\nInteractions DataFrame Sample:")
+    print(interactions_df['user'].head(15))
+    print(f"Total interactions fetched: {len(interactions_df)}")
+    example_user_id = "f580b257-861e-48b8-a145-4cef50b14229"
+    print(type(interactions_df['user'][0]))
+    print(interactions_df.columns)
+    print(interactions_df[['avg','weight']].head())
+    print(interactions_df[[ 'type', 'interaction', 'name', 'weight', 'avg']])
     db_client.close()

@@ -15,6 +15,7 @@ class UserBasedCF:
         self.user_item_matrix = None
         self.item_columns = None
         self.item_names_df = None
+        self.user_id_to_index = {}
 
     def fit(self):
         """
@@ -23,7 +24,7 @@ class UserBasedCF:
         """
         fetcher = InteractionsFetcher(self.db_client)
         interactions = fetcher.fetch_interactions()
-        self.item_names_df = interactions[['item', 'name', 'item_type']].drop_duplicates(subset=['item', 'item_type']).set_index(['item', 'item_type'])
+        self.item_names_df = interactions[['item', 'name', 'type']].drop_duplicates(subset=['item', 'type']).set_index(['item', 'type'])
 
         if interactions.empty:
             print("Warning: Interaction data is empty. Cannot fit the model.")
@@ -33,10 +34,10 @@ class UserBasedCF:
 
         # Create user-item matrix (users as rows, items as columns)
         try:
-            self.user_item_matrix = interactions.pivot_table(index="user", columns=["item", "item_type"], values="avg", fill_value=0, observed=True)
+            self.user_item_matrix = interactions.pivot_table(index="user", columns=["item", "type"], values="avg", fill_value=0, observed=True)
 
         except ValueError as e:
-            print(f"Error during pivot_table: {e}. Ensure 'user', 'item', 'item_type', and 'weight' columns exist.")
+            print(f"Error during pivot_table: {e}. Ensure 'user', 'item', 'type', and 'weight' columns exist.")
             return
 
         if self.user_item_matrix.empty:
@@ -45,27 +46,33 @@ class UserBasedCF:
 
         # Store user indices
         self.user_indices = self.user_item_matrix.index
+        self.user_id_to_index = {user_id: idx for idx, user_id in enumerate(self.user_indices)}
 
-        # Store item columns for recommendation output
+
         self.item_columns = self.user_item_matrix.columns
-        coo = coo_matrix(( interactions['avg'].astype(float),
-                          (interactions['user'].cat.codes.copy(), 
-                          interactions['item'].cat.codes.copy())))
-        overlap_matrix = coo.astype(bool).astype(int).dot(coo.transpose().astype(bool).astype(int))
-        self.user_similarity = cosine_similarity(coo, dense_output=False)
-        self.user_similarity =  self.user_similarity.multiply( self.user_similarity > self.min_sim)
-        self.user_similarity  = self.user_similarity.multiply(overlap_matrix > self.min_overlap)
+        self.sparse_user_item_matrix = csr_matrix(self.user_item_matrix.values)
+        
+        user_overlap_matrix = self.sparse_user_item_matrix.astype(bool) @ self.sparse_user_item_matrix.transpose().astype(bool)
+        user_overlap_matrix = user_overlap_matrix.tocsr()
+      
+        
+        raw_similarity = cosine_similarity(self.sparse_user_item_matrix, dense_output=False)
+        raw_similarity = raw_similarity.tocsr()
+        
+        similarity_after_min_sim = raw_similarity.multiply(raw_similarity > self.min_sim)
+        overlap_mask = user_overlap_matrix > self.min_overlap
+        self.user_similarity = similarity_after_min_sim.multiply(overlap_mask)
      
 
     def recommend(self, user_id, top_n=5, item_type=None):
       
         if self.user_similarity is None or self.user_indices is None or self.user_item_matrix is None or self.item_columns is None:
             print("Warning: Model has not been fitted yet or fitting resulted in empty data. Cannot make recommendations.")
-            return pd.DataFrame(columns=['rank', 'user', 'item', 'item_type', 'name', 'score'])
+            return pd.DataFrame(columns=['rank', 'user', 'item', 'type', 'name', 'score'])
 
         if user_id not in self.user_indices:
             print(f"Warning: User ID '{user_id}' not found in the training data.")
-            return pd.DataFrame(columns=['rank', 'user', 'item', 'item_type', 'name', 'score'])
+            return pd.DataFrame(columns=['rank', 'user', 'item', 'type', 'name', 'score'])
 
         user_idx = np.where(self.user_indices == user_id)[0][0]
         similarity_scores = self.user_similarity.getrow(user_idx).toarray().flatten()
@@ -84,7 +91,7 @@ class UserBasedCF:
         ranked_items_with_scores = item_scores.drop([(item, it) for item, it in interacted_items if (item, it) in item_scores.index])
 
         if item_type:
-            ranked_items_with_scores = ranked_items_with_scores[ranked_items_with_scores.index.get_level_values('item_type') == item_type]
+            ranked_items_with_scores = ranked_items_with_scores[ranked_items_with_scores.index.get_level_values('type') == item_type]
 
         top_ranked_items = ranked_items_with_scores.nlargest(top_n)
 
@@ -97,7 +104,7 @@ class UserBasedCF:
                 recommendations.append({
                     'rank': rank,
                     'item': item_id,
-                    'item_type': item_type_rec,
+                    'type': item_type_rec,
                     'name': item_name,
                     'score': score
                 })
@@ -106,24 +113,29 @@ class UserBasedCF:
                 recommendations.append({
                     'rank': rank,
                     'item': item_id,
-                    'item_type': item_type_rec,
+                    'type': item_type_rec,
                     'name': f"Unknown {item_type_rec} ({item_id})",
                     'score': top_ranked_items[(item_id, item_type_rec)]
                 })
 
  
         recommendations_df = pd.DataFrame(recommendations)
-        return recommendations_df[['rank',  'item', 'item_type', 'name', 'score']]
+        return recommendations_df[['rank',  'item', 'type', 'name', 'score']]
 
 if __name__ == "__main__":
     db_client = Neo4jClient()
-    model = UserBasedCF(db_client, k_neighbors=5, min_sim=0.001, min_overlap=0)
+    model = UserBasedCF(db_client, k_neighbors=25, min_sim=0.001, min_overlap=0)
     model.fit()
     user_id_to_recommend =[
                               '633af53b-f78c-474c-9324-2a734bd86d24',
                                '65ab857a-6ff4-493f-aa8d-ddde6463cc20',
                                '72effc5b-589a-4076-9be5-f7c3d8533f70',
-                               '8aaafb9e-0f60-47d1-9b98-1b171564fbf9']                              
+                               '8aaafb9e-0f60-47d1-9b98-1b171564fbf9',
+                               'b9c32bc3-4b7f-46fd-af3b-ca48060b89a1',
+                               '3738e035-45a5-4b8b-86a2-32ff64a76f03',
+                               '82f642dc-fda0-46ed-b080-f4b1866899a6',
+                               'b99c49fc-f7b1-4cd4-8d22-cc5b8575f07f',
+                               '3989ed58-1cce-45e2-9b5b-e4827165e324'      ]                              
     # Get recommendations for 'Trip'
     for id in user_id_to_recommend:
         top_trips = model.recommend(id, top_n=3, item_type='Trip')
@@ -139,6 +151,7 @@ if __name__ == "__main__":
         top_destinations = model.recommend(id, top_n=3, item_type='Destination')
         print(f"Top Destination recommendations for user {id}:")
         print(top_destinations)
+        print(model.user_id_to_index[id])
 
     db_client.close()
 
