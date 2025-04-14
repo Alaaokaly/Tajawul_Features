@@ -83,12 +83,25 @@ class InteractionsFetcher:
         df = pd.DataFrame(data, columns=["user", "item", "item_type", "interaction", "name"])
 
         # Ensure categorical data types for user, item, and item_type
-        df[["user", "item", "item_type"]] = df[["user", "item", "item_type"]].astype('category')
+       
 
         # Map interaction types to weights, use default_weight if interaction is not found
-        df["weight"] = df["interaction"].map(interaction_weights).fillna(default_weight)
+        df["weight"] = df["interaction"].map(interaction_weights).fillna(0.0)
+
+        df['avg'] = df.groupby('user')['weight'].transform(lambda x: self.normalize(x))
+        df[["user", "item", "item_type"]] = df[["user", "item", "item_type"]].astype('category')
+
 
         return df
+    def normalize(self,x):
+        x = x.astype(float)
+        x_sum = x.sum()
+        x_num = x.astype(bool).sum()
+        x_mean = x_sum / x_num
+        if x.std() == 0:
+            return 0.0
+        return (x - x_mean) / (x.max() - x.min())
+        
 
 class ContentBasedFetcher:
     def __init__(self, db: Neo4jClient):
@@ -228,36 +241,31 @@ if __name__ == "__main__":
     interaction_fetcher = InteractionsFetcher(db_client)
     print("Fetching interactions...")
     interactions_df = interaction_fetcher.fetch_interactions()
-    print("\nInteractions DataFrame Sample:")
-    print(interactions_df.head())
-    print(f"Total interactions fetched: {len(interactions_df)}")
+    user_id_to_recommend =[
+                              '633af53b-f78c-474c-9324-2a734bd86d24',
+                               '65ab857a-6ff4-493f-aa8d-ddde6463cc20',
+                             
 
-    # #4. Fetch Content-Based Data (Example User)
-    content_fetcher = ContentBasedFetcher(db_client)
-    example_user_id = "f580b257-861e-48b8-a145-4cef50b14229"
-    example_limit = 10
-
-    print(f"\n--- Content-Based Fetching for User: {example_user_id} ---")
-
-    print(f"\nFetching 'new user' recommendations (limit {example_limit})...")
-    new_data, new_styles = content_fetcher.fetch_new_user_data(example_user_id, example_limit)
-    print(f"User Styles: {new_styles}")
-    print("Recommended Data Sample:")
-   
-    for item in new_data[:5]:
-        print(f"  - {item['type']}: {item['name']}, Tags: {item['tags']}")
-
+                               '72effc5b-589a-4076-9be5-f7c3d8533f70',
+                               '8aaafb9e-0f60-47d1-9b98-1b171564fbf9',
+                           
+                            
+                             
+                               
+                               '841f7b4f-215d-472b-91f2-7241b64']                              
+    # Get recommendations for 'Trip'
+    for id in user_id_to_recommend:
+        top_trips = model.recommend(id, top_n=3, item_type='Trip')
+        print(f"Top Trip recommendations for user {id}:")
+        print(top_trips)
     
-    print(f"\nFetching 'existing user' activity data (limit {example_limit})...")
-    existing_data, existing_styles = content_fetcher.fetch_existing_user_data(example_user_id, example_limit)
-   
-    print(f"User Styles: {existing_styles}")
-    print("Visited/Attended Data Sample:")
-    for item in existing_data[:5]:
-        # Example to print the first row
-        print(f"  - {item['type']}: {item['name']}, Tags: {item['tags']}")
-
-    if not existing_data:
-        print("  (No data found)")
-
+        # Get recommendations for 'Event'
+        top_events = model.recommend(id, top_n=3, item_type='Event')
+        print(f"Top Event recommendations for user {id}:")
+        print(top_events)
+    
+        # Get recommendations for 'Destination'
+        top_destinations = model.recommend(id, top_n=3, item_type='Destination')
+        print(f"Top Destination recommendations for user {id}:")
+        print(top_destinations)
     db_client.close()

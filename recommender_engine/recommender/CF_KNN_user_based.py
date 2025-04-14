@@ -3,11 +3,13 @@ from scipy.sparse import csr_matrix
 from sklearn.metrics.pairwise import cosine_similarity
 from neo4j_data_fetcher import InteractionsFetcher, Neo4jClient
 import pandas as pd
-
+from scipy.sparse import coo_matrix
 class UserBasedCF:
-    def __init__(self, db_client: Neo4jClient, k_neighbors=5):
+    def __init__(self, db_client: Neo4jClient, k_neighbors=5, min_sim=0.1, min_overlap=0):
         self.db_client = db_client
         self.k_neighbors = k_neighbors
+        self.min_sim = min_sim
+        self.min_overlap = min_overlap
         self.user_similarity = None
         self.user_indices = None
         self.user_item_matrix = None
@@ -27,13 +29,12 @@ class UserBasedCF:
             print("Warning: Interaction data is empty. Cannot fit the model.")
             return
 
-        # Fill NaN weights with a default value (e.g., 1.0) before pivoting
-        interactions['weight'] = interactions['weight'].fillna(1.0)
+        
 
         # Create user-item matrix (users as rows, items as columns)
         try:
-            self.user_item_matrix = interactions.pivot_table(index="user", columns=["item", "item_type"],
-                                                              values="weight", fill_value=0)
+            self.user_item_matrix = interactions.pivot_table(index="user", columns=["item", "item_type"], values="avg", fill_value=0, observed=True)
+
         except ValueError as e:
             print(f"Error during pivot_table: {e}. Ensure 'user', 'item', 'item_type', and 'weight' columns exist.")
             return
@@ -47,23 +48,17 @@ class UserBasedCF:
 
         # Store item columns for recommendation output
         self.item_columns = self.user_item_matrix.columns
-
-        # Convert to sparse matrix for efficiency
-        sparse_matrix = csr_matrix(self.user_item_matrix.values)
-
-        # Compute user-user similarity using cosine similarity
-        self.user_similarity = cosine_similarity(sparse_matrix)
+        coo = coo_matrix(( interactions['avg'].astype(float),
+                          (interactions['user'].cat.codes.copy(), 
+                          interactions['item'].cat.codes.copy())))
+        overlap_matrix = coo.astype(bool).astype(int).dot(coo.transpose().astype(bool).astype(int))
+        self.user_similarity = cosine_similarity(coo, dense_output=False)
+        self.user_similarity =  self.user_similarity.multiply( self.user_similarity > self.min_sim)
+        self.user_similarity  = self.user_similarity.multiply(overlap_matrix > self.min_overlap)
+     
 
     def recommend(self, user_id, top_n=5, item_type=None):
-        """
-        Generate item recommendations for a given user based on similar users (KNN).
-        :param user_id: ID of the target user.
-        :param top_n: Number of recommendations to return.
-        :param item_type: The type of item to recommend ('Trip', 'Event', 'Destination').
-                          If None, recommends across all item types.
-        :return: A pandas DataFrame with 'rank', 'user', 'item', 'item_type', 'name', and 'score'
-                 for the top N recommendations.
-        """
+      
         if self.user_similarity is None or self.user_indices is None or self.user_item_matrix is None or self.item_columns is None:
             print("Warning: Model has not been fitted yet or fitting resulted in empty data. Cannot make recommendations.")
             return pd.DataFrame(columns=['rank', 'user', 'item', 'item_type', 'name', 'score'])
@@ -73,7 +68,7 @@ class UserBasedCF:
             return pd.DataFrame(columns=['rank', 'user', 'item', 'item_type', 'name', 'score'])
 
         user_idx = np.where(self.user_indices == user_id)[0][0]
-        similarity_scores = self.user_similarity[user_idx]
+        similarity_scores = self.user_similarity.getrow(user_idx).toarray().flatten()
         similar_user_indices = np.argsort(similarity_scores)[::-1][1:self.k_neighbors + 1]
         similar_user_weights = similarity_scores[similar_user_indices]
         item_scores = pd.Series(0, index=self.item_columns)
@@ -101,7 +96,6 @@ class UserBasedCF:
                 score = top_ranked_items[(item_id, item_type_rec)]
                 recommendations.append({
                     'rank': rank,
-                    'user': user_id,
                     'item': item_id,
                     'item_type': item_type_rec,
                     'name': item_name,
@@ -111,35 +105,46 @@ class UserBasedCF:
                 print(f"Warning: Name not found for item ID '{item_id}' and type '{item_type_rec}'.")
                 recommendations.append({
                     'rank': rank,
-                    'user': user_id,
                     'item': item_id,
                     'item_type': item_type_rec,
                     'name': f"Unknown {item_type_rec} ({item_id})",
                     'score': top_ranked_items[(item_id, item_type_rec)]
                 })
 
+ 
         recommendations_df = pd.DataFrame(recommendations)
-        return recommendations_df[['rank', 'user', 'item', 'item_type', 'name', 'score']]
+        return recommendations_df[['rank',  'item', 'item_type', 'name', 'score']]
 
 if __name__ == "__main__":
     db_client = Neo4jClient()
-    model = UserBasedCF(db_client, k_neighbors=5)
+    model = UserBasedCF(db_client, k_neighbors=5, min_sim=0.001, min_overlap=0)
     model.fit()
-    user_id_to_recommend = "4bf0b634-076d-4d9e-9679-b83fdcaabf81"
+    user_id_to_recommend =[
+                              '633af53b-f78c-474c-9324-2a734bd86d24',
+                               '65ab857a-6ff4-493f-aa8d-ddde6463cc20',
+                             
 
+                               '72effc5b-589a-4076-9be5-f7c3d8533f70',
+                               '8aaafb9e-0f60-47d1-9b98-1b171564fbf9',
+                           
+                            
+                             
+                               
+                               '841f7b4f-215d-472b-91f2-7241b64']                              
     # Get recommendations for 'Trip'
-    top_trips = model.recommend(user_id_to_recommend, top_n=3, item_type='Trip')
-    print(f"Top Trip recommendations for user {user_id_to_recommend}:")
-    print(top_trips)
-
-    # Get recommendations for 'Event'
-    top_events = model.recommend(user_id_to_recommend, top_n=3, item_type='Event')
-    print(f"Top Event recommendations for user {user_id_to_recommend}:")
-    print(top_events)
-
-    # Get recommendations for 'Destination'
-    top_destinations = model.recommend(user_id_to_recommend, top_n=3, item_type='Destination')
-    print(f"Top Destination recommendations for user {user_id_to_recommend}:")
-    print(top_destinations)
+    for id in user_id_to_recommend:
+        top_trips = model.recommend(id, top_n=3, item_type='Trip')
+        print(f"Top Trip recommendations for user {id}:")
+        print(top_trips)
+    
+        # Get recommendations for 'Event'
+        top_events = model.recommend(id, top_n=3, item_type='Event')
+        print(f"Top Event recommendations for user {id}:")
+        print(top_events)
+    
+        # Get recommendations for 'Destination'
+        top_destinations = model.recommend(id, top_n=3, item_type='Destination')
+        print(f"Top Destination recommendations for user {id}:")
+        print(top_destinations)
 
     db_client.close()
