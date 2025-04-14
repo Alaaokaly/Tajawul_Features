@@ -122,15 +122,8 @@ if __name__ == "__main__":
     user_id_to_recommend =[
                               '633af53b-f78c-474c-9324-2a734bd86d24',
                                '65ab857a-6ff4-493f-aa8d-ddde6463cc20',
-                             
-
                                '72effc5b-589a-4076-9be5-f7c3d8533f70',
-                               '8aaafb9e-0f60-47d1-9b98-1b171564fbf9',
-                           
-                            
-                             
-                               
-                               '841f7b4f-215d-472b-91f2-7241b64']                              
+                               '8aaafb9e-0f60-47d1-9b98-1b171564fbf9']                              
     # Get recommendations for 'Trip'
     for id in user_id_to_recommend:
         top_trips = model.recommend(id, top_n=3, item_type='Trip')
@@ -148,3 +141,5 @@ if __name__ == "__main__":
         print(top_destinations)
 
     db_client.close()
+
+    
