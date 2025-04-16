@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 load_dotenv()
 from neo4j import GraphDatabase, Driver, Session, Record, Result
 from typing import Optional
+import random 
+
 
 class Neo4jClient:
     def __init__(self, NEO4J_URI=os.getenv("NEO4J_URI"),
@@ -93,15 +95,29 @@ class InteractionsFetcher:
 
 
         return df
-    def normalize(self,x):
+    def normalize(self, x):
         x = x.astype(float)
         x_sum = x.sum()
         x_num = x.astype(bool).sum()
-        x_mean = x_sum / x_num
-        if x.std() == 0:
-            return 0.0
-        return (x - x_mean) / (x.max() - x.min())
         
+        # Fix division by zero warning
+        if x_num == 0:
+            return x * 0.0  # Return zeros with the same shape as x
+        
+        x_mean = x_sum / x_num
+        
+        # Check if all values are the same (which would result in max-min = 0)
+        range_value = x.max() - x.min()
+        if range_value == 0:
+            return x * 0.0  # Return zeros with the same shape as x
+        
+        return (x - x_mean) / range_value
+    
+
+
+    
+    
+    
 
 class ContentBasedFetcher:
     def __init__(self, db: Neo4jClient):
@@ -250,3 +266,63 @@ if __name__ == "__main__":
     print(interactions_df[['avg','weight']].head())
     print(interactions_df[[ 'type', 'interaction', 'name', 'weight', 'avg']])
     db_client.close()
+
+
+
+
+    """# Neo4j Data Fetchers for Recommendation System
+
+This repository contains Python classes designed to interact with a Neo4j graph database to fetch data relevant for building recommendation systems. It includes:
+
+1.  A client class (`Neo4jClient`) to manage the connection and execution of Cypher queries against a Neo4j database.
+2.  An interaction fetcher class (`InteractionsFetcher`) to retrieve user-item interactions (e.g., visits, wishes, reviews) with associated weights and normalization, suitable for collaborative filtering approaches.
+3.  A content-based fetcher class (`ContentBasedFetcher`) to retrieve item features and user preferences/history, suitable for content-based filtering approaches.
+
+## Features
+
+*   **Neo4j Connection Management:** Securely connects to a Neo4j instance using credentials from environment variables. Handles connection verification and closure.
+*   **Robust Query Execution:** Executes Cypher queries with parameter support and basic error handling.
+*   **Interaction Data Retrieval:** Fetches interactions between `User` nodes and `Trip`, `Destination`, or `Event` nodes.
+*   **Interaction Weighting:** Assigns predefined weights to different interaction types (e.g., `VISITED`, `WISHED`).
+*   **Interaction Normalization:** Calculates a normalized interaction score (`avg`) per user based on their interaction weights using the formula `(weight - user_mean_weight) / (user_max_weight - user_min_weight)`.
+*   **Content Data Retrieval:**
+    *   Fetches potential items (`Destination`, `Event`) for *new users* based on their profile preferences (activity, duration, group size, style tags).
+    *   Fetches items (`Destination`, `Event`) that an *existing user* has previously interacted with (`VISITED`, `ATTEND`).
+    *   Retrieves user style preferences (`Tag` nodes connected via `HAD_STYLE`).
+*   **Pandas Integration:** Returns fetched interaction data as a structured Pandas DataFrame.
+
+## Prerequisites
+
+*   Python 3.x
+*   A running Neo4j database instance.
+*   Required Python packages:
+    *   `neo4j`
+    *   `pandas`
+    *   `python-dotenv`
+
+## Installation
+
+1.  **Clone the repository (if applicable):**
+    ```bash
+    git clone <your-repo-url>
+    cd <your-repo-directory>
+    ```
+
+2.  **Install dependencies:**
+    ```bash
+    pip install neo4j pandas python-dotenv
+    ```
+    Alternatively, if you have a `requirements.txt` file:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+## Configuration
+
+The application requires Neo4j connection details to be set as environment variables. Create a `.env` file in the root directory of your project with the following content:
+
+```dotenv
+# .env file
+NEO4J_URI=bolt://your_neo4j_host:7687 # Or neo4j://, neo4j+s:// etc.
+NEO4J_USERNAME=your_neo4j_username
+NEO4J_PASSWORD=your_neo4j_password"""
