@@ -79,3 +79,26 @@ def calculate_coverage(model):
                       splitting by the user
                       divid each users interactions into testing and training sets 
                                      """
+
+
+import matplotlib.pyplot as plt
+
+# Set style
+plt.style.use("ggplot")
+
+# Bar chart to compare runtimes
+fig, ax = plt.subplots(figsize=(10, 6))
+models = ['User-Based CF', 'Item-Based CF']
+runtimes = [12.2, 13.1]  # seconds
+
+bars = ax.bar(models, runtimes, color=['steelblue', 'orange'])
+ax.set_ylabel('Runtime (seconds)')
+ax.set_title('Model Training Time Comparison')
+
+# Adding value labels on top of bars
+for bar in bars:
+    yval = bar.get_height()
+    ax.text(bar.get_x() + bar.get_width()/2.0, yval + 0.2, f'{yval:.1f}', ha='center', va='bottom')
+
+plt.tight_layout()
+plt.show()

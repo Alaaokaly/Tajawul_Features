@@ -65,11 +65,6 @@ class HybridRecommender:
         return df
 
     def _select_cf_model(self, item_type):
-        """
-        Select the appropriate CF model based on item type:
-        - ItemBasedCF for Destinations and Events
-        - UserBasedCF for Trips and default cases
-        """
         if item_type in ['Destination', 'Event']:
             return self.item_cf_model
         else:  # 'Trip' or None or any other type
@@ -77,6 +72,7 @@ class HybridRecommender:
 
     def recommend(self, user_id, top_n=10, item_type=None, use_mmr_for_cb=True, epsilon=0.1):
         interactions_count = self.get_interactions_count(user_id)
+        
         print(f"Interaction count from CF matrix: {interactions_count}")
         
         # Select appropriate CF model based on item type
@@ -261,7 +257,7 @@ class HybridRecommender:
 
 if __name__ == "__main__":
    
-    user_id_zero_interactions = "user_with_only_onboarding_tags" 
+    user_id_zero_interactions = "1aba2aa2-5be8-4710-a0cd-f3294b7a6d49"
     user_id_few_interactions = "b9c32bc3-4b7f-46fd-af3b-ca48060b89a1" 
     user_id_active = "b9c32bc3-4b7f-46fd-af3b-ca48060b89a1" 
 
@@ -292,26 +288,26 @@ if __name__ == "__main__":
             threshold_interactions=5
         )
 
-        # # Test Different User Stages with different item types
-        # print(f"\n--- Testing Stage 1 User: {user_id_zero_interactions} ---")
+        # Test Different User Stages with different item types
+        print(f"\n--- Testing Stage 1 User: {user_id_zero_interactions} ---")
         
-        # # Test with Destination (should use item-based CF model for active users)
-        # recs_destination = hybrid_model.recommend(
-        #     user_id=user_id_zero_interactions, 
-        #     top_n=5, 
-        #     item_type='Destination'
-        # )
-        # print(f"Hybrid Recommendations (Stage 1 - Cold Start, Destination):")
-        # print(recs_destination)
+        # Test with Destination (should use item-based CF model for active users)
+        recs_destination = hybrid_model.recommend(
+            user_id=user_id_zero_interactions, 
+            top_n=5, 
+            item_type='Destination'
+        )
+        print(f"Hybrid Recommendations (Stage 1 - Cold Start, Destination):")
+        print(recs_destination)
         
         # Test with Event (should also use item-based CF model for active users)
-        # recs_event = hybrid_model.recommend(
-        #     user_id=user_id_few_interactions, 
-        #     top_n=5, 
-        #     item_type='Event'
-        # )
-        # print(f"\nHybrid Recommendations (Stage 2 - Few Interactions, Event):")
-        # print(recs_event)
+        recs_event = hybrid_model.recommend(
+            user_id=user_id_few_interactions, 
+            top_n=5, 
+            item_type='Event'
+        )
+        print(f"\nHybrid Recommendations (Stage 2 - Few Interactions, Event):")
+        print(recs_event)
         
         # Test with Trip (should use user-based CF model for active users)
         recs_trip = hybrid_model.recommend(

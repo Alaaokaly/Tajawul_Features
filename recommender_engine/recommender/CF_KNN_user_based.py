@@ -5,7 +5,7 @@ from neo4j_data_fetcher import InteractionsFetcher, Neo4jClient
 import pandas as pd
 from scipy.sparse import coo_matrix
 from typing import Optional, Any 
-import random  
+
 import random 
 
 class UserBasedCF:
