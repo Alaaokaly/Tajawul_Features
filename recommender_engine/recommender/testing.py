@@ -73,4 +73,9 @@ def calculate_coverage(model):
                                    the DCG looks at levels of relevancy.
                                    you give each item a relevancy score. 
                                    it can be the predicted rating or profit on the item. 
+
+            
+    Splitting the data:
+                      splitting by the user
+                      divid each users interactions into testing and training sets 
                                      """

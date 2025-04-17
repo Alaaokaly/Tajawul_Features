@@ -4,7 +4,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 from neo4j_data_fetcher import InteractionsFetcher, Neo4jClient
 import pandas as pd
 from scipy.sparse import coo_matrix
-
+from typing import Optional, Any 
+import random 
 
 class ItemBasedCF:
     def __init__(self, db_client: Neo4jClient, k_neighbors=5, min_sim=0.1, min_overlap=0):
@@ -95,14 +96,63 @@ class ItemBasedCF:
             })
 
         return pd.DataFrame(recommendations)[['rank', 'item', 'type', 'name', 'score']]
-
+    def recommend_with_epsilon_greedy(self, user_id, top_candidates_df: pd.DataFrame, item_type: Optional[str] = None, epsilon: float = 0.2, top_n: int = 10):
+        
+         if self.user_item_matrix is None or self.item_names_df is None:
+             print("Model must be fitted first.")
+             return pd.DataFrame()
+     
+         # Get all items of the given type
+         all_items_of_type = self.item_names_df[self.item_names_df.index.get_level_values('type') == item_type]
+         
+         # Get items user already interacted with
+         user_vector = self.user_item_matrix.loc[user_id]
+         interacted_items = user_vector[user_vector > 0].index
+     
+         # Filter unseen items
+         unseen_items = [
+             (item_id, t) for (item_id, t) in all_items_of_type.index
+             if (item_id, t) not in interacted_items
+         ]
+     
+         # Choose explore/exploit split
+         explore_count = int(top_n * epsilon)
+         exploit_count = top_n - explore_count
+     
+         exploit_items = top_candidates_df.head(exploit_count).to_dict("records")
+     
+         explore_samples = random.sample(unseen_items, min(explore_count, len(unseen_items)))
+         
+         explore_items = []
+         for rank, (item_id, item_type_val) in enumerate(explore_samples, start=1):
+             try:
+                 name = self.item_names_df.loc[(item_id, item_type_val)]['name']
+             except KeyError:
+                 name = f"Unknown {item_type_val} ({item_id})"
+             explore_items.append({
+                 'rank': None,
+                 'item': item_id,
+                 'type': item_type_val,
+                 'name': name,
+                 'score': None  # score is unknown
+             })
+     
+         # Merge & shuffle
+         all_items = exploit_items + explore_items
+         random.shuffle(all_items)
+     
+         # Re-rank and return
+         for i, item in enumerate(all_items, 1):
+             item['rank'] = i
+         return pd.DataFrame(all_items)
 
 if __name__ == "__main__":
     db_client = Neo4jClient()
     model = ItemBasedCF(db_client, k_neighbors=25, min_sim=0.001, min_overlap=0)
     model.fit()
     
-    user_ids = [
+    
+    user_id_to_recommend = [
         '633af53b-f78c-474c-9324-2a734bd86d24',
         '65ab857a-6ff4-493f-aa8d-ddde6463cc20',
         '72effc5b-589a-4076-9be5-f7c3d8533f70',
@@ -114,13 +164,19 @@ if __name__ == "__main__":
         '3989ed58-1cce-45e2-9b5b-e4827165e324'
     ]
 
-    for uid in user_ids:
-        print(f"User: {uid}")
-        print("Top Trips:")
-        print(model.recommend(uid, top_n=3, item_type='Trip'))
-        print("Top Events:")
-        print(model.recommend(uid, top_n=3, item_type='Event'))
-        print("Top Destinations:")
-        print(model.recommend(uid, top_n=3, item_type='Destination'))
+    for user_id in user_id_to_recommend:
+        for item_type in ['Trip', 'Event', 'Destination']:
+            top_items = model.recommend(user_id, top_n=10, item_type=item_type)
+            print(f"Top {item_type} recommendations for user {user_id}:")
+            print(top_items[['score','name']])
+
+            epsilon_recs = model.recommend_with_epsilon_greedy(
+                user_id,
+                top_candidates_df=top_items,
+                item_type=item_type,
+                epsilon=0.2
+            )
+            print(f"Epsilon-Greedy {item_type} recommendations for user {user_id}:")
+            print(epsilon_recs[['score','name']])
 
     db_client.close()
