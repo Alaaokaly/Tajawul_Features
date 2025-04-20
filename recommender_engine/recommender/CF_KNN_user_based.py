@@ -208,5 +208,8 @@ if __name__ == "__main__":
             )
             print(f"Epsilon-Greedy {item_type} recommendations for user {user_id}:")
             print(epsilon_recs[['score','name']])
+    
+    print(model.user_item_matrix.columns)
+  
 
     db_client.close()

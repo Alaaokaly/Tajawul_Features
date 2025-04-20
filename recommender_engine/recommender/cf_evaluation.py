@@ -4,19 +4,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error, ndcg_score
 from neo4j_data_fetcher import Neo4jClient, InteractionsFetcher
 from CF_KNN_user_based import UserBasedCF
+from CF_KNN_item_based import ItemBasedCF
 import matplotlib.pyplot as plt
 import time
 from typing import Dict, List, Tuple, Optional
 
 
 class RecommenderEvaluator:
-    """
-    Evaluator class for the UserBasedCF recommender system.
-    Implements offline evaluation metrics including:
-    - Prediction accuracy (RMSE, MAE)
-    - Ranking metrics (NDCG, precision, recall)
-    - Coverage, diversity, and novelty metrics
-    """
+
     
     def __init__(self, db_client: Neo4jClient):
         self.db_client = db_client
@@ -27,7 +22,6 @@ class RecommenderEvaluator:
         self.all_items = None
         
     def load_data(self):
-        """Load interaction data from Neo4j"""
         print("Loading interaction data...")
         self.interactions_df = self.fetcher.fetch_interactions()
         if self.interactions_df.empty:
@@ -38,7 +32,6 @@ class RecommenderEvaluator:
         print(f"Loaded {len(self.interactions_df)} interactions for {self.interactions_df['user'].nunique()} users")
         
     def train_test_split(self, test_size=0.2, random_state=42):
-        """Split data into training and test sets"""
         if self.interactions_df is None:
             self.load_data()
             
@@ -67,17 +60,7 @@ class RecommenderEvaluator:
         print(f"Test set: {len(self.test_df)} interactions")
         
     def evaluate_model(self, param_grid: Dict, test_users: Optional[List[str]] = None, top_n=10):
-        """
-        Evaluate the model with different hyperparameters
-        
-        Args:
-            param_grid: Dictionary of parameters to try
-            test_users: List of user IDs to test on (if None, use all users in test set)
-            top_n: Number of recommendations to generate
-            
-        Returns:
-            DataFrame with evaluation results for each parameter combination
-        """
+   
         if self.train_df is None or self.test_df is None:
             self.train_test_split()
             
@@ -97,12 +80,8 @@ class RecommenderEvaluator:
                 for overlap in overlap_values:
                     print(f"\nEvaluating model with k={k}, min_sim={sim}, min_overlap={overlap}")
                     
-                    # Configure and train model on training data
                     model = UserBasedCF(self.db_client, k_neighbors=k, min_sim=sim, min_overlap=overlap)
-                    
-                    # Create a copy of the database with just training data
-                    # In a real evaluation, you'd need to modify this to train only on training data
-                    # This is a simplified version that assumes model.fit() will use training data
+    
                     start_time = time.time()
                     model.fit()
                     fit_time = time.time() - start_time
@@ -122,35 +101,28 @@ class RecommenderEvaluator:
         return pd.DataFrame(results)
     
     def _calculate_metrics(self, model: UserBasedCF, test_users: List[str], top_n: int) -> Dict:
-        """Calculate evaluation metrics for the model"""
-        # Initialize metric counters
+
         total_precision = 0
         total_recall = 0
         total_ndcg = 0
         total_hit_rate = 0
         total_mrr = 0
-        
-        # For coverage calculation
+    
         recommended_items = set()
-        
-        # For diversity calculation
+
         all_recommendation_lists = []
         
-        # For novelty calculation
         item_popularity = self.train_df.groupby(['item', 'type']).size()
         total_popularity = 0
-        
-        # Process each test user
+
         evaluated_users = 0
         
         for user_id in test_users:
-            # Get user's interactions from test set
             user_test = self.test_df[self.test_df['user'] == user_id]
             
             if user_test.empty:
                 continue
-                
-            # Get actual items the user interacted with in the test set
+
             actual_items = set(tuple(x) for x in user_test[['item', 'type']].values)
             
             all_user_recs = []
@@ -190,56 +162,45 @@ class RecommenderEvaluator:
             
             # Hit rate is 1 if at least one recommendation was relevant
             hit_rate = 1 if hits > 0 else 0
-            
-            # Calculate MRR (Mean Reciprocal Rank)
-            # Find the rank of the first relevant item
+
             mrr = 0
             for rank, item in enumerate(all_user_recs, 1):
                 if item in actual_items:
                     mrr = 1 / rank
                     break
-            
-            # Calculate NDCG
-            # Create binary relevance scores for recommendations
+
             y_true = np.zeros(len(all_user_recs))
             for i, item in enumerate(all_user_recs):
                 if item in actual_items:
                     y_true[i] = 1
-                    
-            # Reshape for ndcg_score and handle edge case
+
             if len(y_true) > 0 and np.sum(y_true) > 0:
                 y_true_reshaped = y_true.reshape(1, -1)
                 y_score_reshaped = np.array(range(len(y_true), 0, -1)).reshape(1, -1)
                 ndcg = ndcg_score(y_true_reshaped, y_score_reshaped)
             else:
                 ndcg = 0
-            
-            # Update totals
+
             total_precision += precision
             total_recall += recall
             total_ndcg += ndcg
             total_hit_rate += hit_rate
             total_mrr += mrr
-            
-            # Store user's recommendations for diversity calculation
             all_recommendation_lists.append(all_user_recs)
             
             evaluated_users += 1
             
-        # Calculate averages
+
         avg_precision = total_precision / evaluated_users if evaluated_users > 0 else 0
         avg_recall = total_recall / evaluated_users if evaluated_users > 0 else 0
         avg_ndcg = total_ndcg / evaluated_users if evaluated_users > 0 else 0
         avg_hit_rate = total_hit_rate / evaluated_users if evaluated_users > 0 else 0
         avg_mrr = total_mrr / evaluated_users if evaluated_users > 0 else 0
-        
-        # Calculate coverage
+
         coverage = len(recommended_items) / len(self.all_items) if self.all_items else 0
-        
-        # Calculate average novelty
+
         avg_novelty = total_popularity / (evaluated_users * top_n) if evaluated_users > 0 else 0
-        
-        # Calculate diversity (average pairwise Jaccard distance)
+
         total_diversity = 0
         diversity_pairs = 0
         
@@ -247,9 +208,7 @@ class RecommenderEvaluator:
             for j in range(i + 1, len(all_recommendation_lists)):
                 list1 = set(all_recommendation_lists[i])
                 list2 = set(all_recommendation_lists[j])
-                
-                # Jaccard distance = 1 - Jaccard similarity
-                # where Jaccard similarity = |intersection| / |union|
+
                 if list1 and list2:  # Ensure non-empty lists
                     intersection = len(list1.intersection(list2))
                     union = len(list1.union(list2))
@@ -442,8 +401,8 @@ if __name__ == "__main__":
     
     # Define parameters to test
     param_grid = {
-        'k_neighbors': [5, 10, 15, 20, 25],
-        'min_sim': [0.001, 0.01, 0.1],
+        'k_neighbors': [ 10, 15, 20, 25,35],
+        'min_sim': [0.001, 0.01, 0.02,0.04,0.06,0.09,0.15],
         'min_overlap': [0, 1, 2]
     }
     model =  UserBasedCF(db_client)
@@ -472,6 +431,7 @@ if __name__ == "__main__":
         min_sim=best_params['min_sim'], 
         min_overlap=int(best_params['min_overlap'])
     )
+    best_model.fit()
     
     # Evaluate epsilon-greedy strategy
     epsilon_values = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
@@ -487,6 +447,8 @@ if __name__ == "__main__":
     # Visualize results
     param_fig = evaluator.visualize_results(results, param_col='k_neighbors')
     epsilon_fig = evaluator.visualize_results(epsilon_results, param_col='epsilon')
+    print(param_fig)
+    print(epsilon_fig)
     
     # Close database connection
     db_client.close()

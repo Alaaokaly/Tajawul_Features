@@ -18,6 +18,7 @@ class ContentBasedRecommender:
         self.similarity_matrix = None
         self.results = []
         self.user_styles = []
+        self.user_item_matrix = None
 
         if self.new_user:
             self.results, self.user_styles = self.content_fetcher.fetch_new_user_data(
@@ -39,6 +40,8 @@ class ContentBasedRecommender:
         df_results['combined_text'] = df_results['description'].fillna('') + " " + df_results['tags'].apply(
             lambda tags: " ".join(tags) if isinstance(tags, list) else ""
         )
+        self.user_item_matrix = df_results.pivot_table(index="user", columns=["item", "type"], values="avg", fill_value=0, observed=True)
+
         # Compute cosine similarity
         vectorizer = TfidfVectorizer(stop_words='english')
         results_matrix = vectorizer.fit_transform(
