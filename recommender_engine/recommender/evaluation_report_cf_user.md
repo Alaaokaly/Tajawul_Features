@@ -15,6 +15,7 @@
 ### Best Parameters
 
 - k_neighbors: 10
+![alt text](../eval_cf_user/k_neighbors_impact_20250425_173746.png)
 - min_sim: 0.001
 - min_overlap: 1
 
@@ -46,6 +47,8 @@
 | 0.3 | 0.0058 | 0.0652 | 0.3567 | 25.6092 |
 | 0.4 | 0.0058 | 0.0658 | 0.4469 | 26.6208 |
 | 0.5 | 0.0058 | 0.0659 | 0.5384 | 26.5037 |
+
+![alt text](../eval_cf_user/epsilon_greedy_vis_20250425_173746.png)
 
 ## Conclusion
 
