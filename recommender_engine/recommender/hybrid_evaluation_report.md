@@ -27,6 +27,8 @@
 - Best model for diversity: **Item-based CF** (0.6730)
 - Best model for novelty: **User-based CF** (22.6054)
 
+![model_comparison_20250425_202127](https://github.com/user-attachments/assets/b97dae73-735a-4eda-8f1d-4ea19de66b59)
+
 ## Epsilon-Greedy Exploration Impact
 
 | Epsilon | Precision | Recall | Diversity | Novelty |
