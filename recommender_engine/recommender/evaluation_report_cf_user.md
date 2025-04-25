@@ -58,3 +58,7 @@
 ## Conclusion
 
 The evaluation shows that the User-Based Collaborative Filtering approach performs best with k=10, min_sim=0.001, and min_overlap=1. Adding randomness with epsilon=0.5 improves recommendation diversity from 0.0107 to 0.5384, while also maintaining good precision (change of 0.0004).
+
+
+![parameter_tuning_vis_20250425_173746](https://github.com/user-attachments/assets/28f6587d-8315-4928-93b6-475de2a4adb2)
+
