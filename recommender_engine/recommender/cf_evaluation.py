@@ -83,7 +83,7 @@ class RecommenderEvaluator:
                 for overlap in overlap_values:
                     print(f"\nEvaluating model with k={k}, min_sim={sim}, min_overlap={overlap}")
                     
-                    model = UserBasedCF(self.db_client, k_neighbors=k, min_sim=sim, min_overlap=overlap)
+                    model = ItemBasedCF(self.db_client, k_neighbors=k, min_sim=sim, min_overlap=overlap)
     
                     start_time = time.time()
                     model.fit()
@@ -103,7 +103,7 @@ class RecommenderEvaluator:
                     
         return pd.DataFrame(results)
     
-    def _calculate_metrics(self, model: UserBasedCF, test_users: List[str], top_n: int) -> Dict:
+    def _calculate_metrics(self, model: ItemBasedCF, test_users: List[str], top_n: int) -> Dict:
 
         total_precision = 0
         total_recall = 0
@@ -233,13 +233,13 @@ class RecommenderEvaluator:
             'evaluated_users': evaluated_users
         }
     
-    def evaluate_epsilon_greedy(self, model: UserBasedCF, test_users: List[str], 
+    def evaluate_epsilon_greedy(self, model: ItemBasedCF, test_users: List[str], 
                                epsilon_values: List[float], top_n: int = 10) -> pd.DataFrame:
         """
         Evaluate the epsilon-greedy recommendation strategy with different epsilon values
         
         Args:
-            model: Trained UserBasedCF model
+            model: Trained ItemBasedCF model
             test_users: List of user IDs to test on
             epsilon_values: List of epsilon values to try
             top_n: Number of recommendations to generate
@@ -399,7 +399,7 @@ db_client = Neo4jClient()
 evaluator = RecommenderEvaluator(db_client)
 
 # Create output directory if it doesn't exist
-output_dir = "eval_cf_user"
+output_dir = "eval_cf_item"
 os.makedirs(output_dir, exist_ok=True)
 
 # Log file setup
@@ -413,7 +413,7 @@ def log_message(message, print_to_console=True):
     if print_to_console:
         print(message)
 
-log_message(f"=== UserBasedCF Evaluation Started at {timestamp} ===")
+log_message(f"=== ItemBasedCF Evaluation Started at {timestamp} ===")
 
 # Load data and split into training/test sets
 try:
@@ -435,7 +435,7 @@ param_grid = {
 
 # Initial model for getting test users
 try:
-    model = UserBasedCF(db_client)
+    model = ItemBasedCF(db_client)
     model.fit()
     # Define a subset of users to test on (for faster evaluation)
     test_user_ids = model.user_indices[:1000]
@@ -492,7 +492,7 @@ except Exception as e:
 # Train model with best parameters
 try:
     log_message("\nTraining model with best parameters...")
-    best_model = UserBasedCF(
+    best_model = ItemBasedCF(
         db_client, 
         k_neighbors=int(best_params['k_neighbors']), 
         min_sim=float(best_params['min_sim']), 
@@ -614,9 +614,9 @@ except Exception as e:
 
 # Generate comprehensive report
 try:
-    report_path = f"{output_dir}/evaluation_report_{timestamp}.md"
+    report_path = f"{output_dir}/evaluation_report_item.md"
     with open(report_path, 'w') as f:
-        f.write(f"# User-Based Collaborative Filtering Evaluation Report\n\n")
+        f.write(f"# Item-Based Collaborative Filtering Evaluation Report\n\n")
         f.write(f"**Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
         
         f.write("## Dataset Statistics\n\n")
@@ -654,7 +654,7 @@ try:
             f.write(f"| {row['epsilon']:.1f} | {row['precision']:.4f} | {row['recall']:.4f} | {row['diversity']:.4f} | {row['novelty']:.4f} |\n")
         
         f.write("\n## Conclusion\n\n")
-        f.write("The evaluation shows that the User-Based Collaborative Filtering approach performs best with ")
+        f.write("The evaluation shows that the Item-Based Collaborative Filtering approach performs best with ")
         f.write(f"k={int(best_params['k_neighbors'])}, min_sim={best_params['min_sim']}, and min_overlap={int(best_params['min_overlap'])}. ")
         
         if best_epsilon['epsilon'] > 0:

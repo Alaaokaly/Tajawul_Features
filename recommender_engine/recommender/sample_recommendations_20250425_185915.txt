@@ -1,0 +1,325 @@
+
+Recommendations for user 00334d2b-79e1-4998-9f45-ef044a1f93ff:
+
+  Top Trip recommendations:
+   rank                                  item  type                    name  score
+0     1  05cfceb2-9e2a-43c5-9d0b-20fc25d1c96f  Trip       Maghreb Discovery    0.0
+1     2  273774a6-7fdd-429b-8d78-6ec63b909ba6  Trip                  string    0.0
+2     3  728e6824-d306-4e55-8fa6-67b2619ebad7  Trip          Dubai Explorer    0.0
+3     4  7f283076-3378-4bf1-a556-ce74099d4e15  Trip     Oman Heritage Trail    0.0
+4     5  9989e4e2-1dc6-46a4-9b06-080f6ea07408  Trip  Beirut Cultural Escape    0.0
+
+  Epsilon-greedy (0.5) Trip recommendations:
+   rank                                  item  type                    name  score
+0     1  9989e4e2-1dc6-46a4-9b06-080f6ea07408  Trip  Beirut Cultural Escape    0.0
+1     2  e228007d-9609-4b61-bb4a-92cd5efa710a  Trip        Egyptian Wonders    NaN
+2     3  05cfceb2-9e2a-43c5-9d0b-20fc25d1c96f  Trip       Maghreb Discovery    0.0
+3     4  273774a6-7fdd-429b-8d78-6ec63b909ba6  Trip                  string    0.0
+4     5  7f283076-3378-4bf1-a556-ce74099d4e15  Trip     Oman Heritage Trail    0.0
+5     6  9989e4e2-1dc6-46a4-9b06-080f6ea07408  Trip  Beirut Cultural Escape    NaN
+6     7  728e6824-d306-4e55-8fa6-67b2619ebad7  Trip          Dubai Explorer    0.0
+7     8  728e6824-d306-4e55-8fa6-67b2619ebad7  Trip          Dubai Explorer    NaN
+8     9  05cfceb2-9e2a-43c5-9d0b-20fc25d1c96f  Trip       Maghreb Discovery    NaN
+9    10  7f283076-3378-4bf1-a556-ce74099d4e15  Trip     Oman Heritage Trail    NaN
+
+  Top Event recommendations:
+   rank                                  item   type                     name  score
+0     1                                     1  Event               Test Event    0.0
+1     2  0b39ee4b-46cd-4c71-8ce1-d24604cd44a9  Event                   Tweeza    0.0
+2     3  0fd84a3e-84aa-44b8-9fd1-4244d0a10d30  Event                  Bujlood    0.0
+3     4  10e6c8d4-c850-40d1-a5b7-4c0a49b42e07  Event            Moga Festival    0.0
+4     5  139e8d17-74ee-4966-95d8-b404af326457  Event  Mawazine Music Festival    0.0
+
+  Epsilon-greedy (0.5) Event recommendations:
+   rank                                  item   type                                  name  score
+0     1  c578a6ef-948e-43d3-a085-7ae124f447d1  Event                           Kha b-Nisan    NaN
+1     2  0b39ee4b-46cd-4c71-8ce1-d24604cd44a9  Event                                Tweeza    0.0
+2     3  139e8d17-74ee-4966-95d8-b404af326457  Event               Mawazine Music Festival    0.0
+3     4  7cefb80c-25e7-422b-8d75-af0626d02155  Event              Historic Jeddah Festival    NaN
+4     5  10e6c8d4-c850-40d1-a5b7-4c0a49b42e07  Event                         Moga Festival    0.0
+5     6  0fd84a3e-84aa-44b8-9fd1-4244d0a10d30  Event                               Bujlood    0.0
+6     7  e74d417b-6820-4014-ae4c-e1b004a92645  Event  International Festival of the Sahara    NaN
+7     8  e2553cae-3ba0-4fec-8759-a76f538a8420  Event                                Ashura    NaN
+8     9                                     1  Event                            Test Event    0.0
+9    10  e08b1c17-de0a-4e46-9963-97ecbb702160  Event                    New Think Festival    NaN
+
+  Top Destination recommendations:
+   rank                                  item         type                                  name  score
+0     1  004fbb89-f7df-420d-a158-02ab5d68ce60  Destination                  Movenpick Hotel Doha    0.0
+1     2  01bc8a51-51cb-4e93-b578-0043e928868c  Destination                          Nessyou Fish    0.0
+2     3  027499d3-f4fe-4731-ba70-803d008bb76a  Destination  Souq Waqif Boutique Hotels by Tivoli    0.0
+3     4  05bbaad2-2ccf-4aec-9685-35d779d20d79  Destination                       Sovereign Hotel    0.0
+4     5  05c90830-249e-4248-81eb-3ceb0fbef529  Destination  Novotel Casablanca City Center Hotel    0.0
+
+  Epsilon-greedy (0.5) Destination recommendations:
+   rank                                  item         type                                  name  score
+0     1  599e6224-879c-48b9-806d-9395550dce7e  Destination                   Terrasse des Epices    NaN
+1     2  b1fc5ac9-2ae6-49f8-bc77-681073a6f8a0  Destination                       Idou Anfa Hotel    NaN
+2     3  59a768aa-9ad8-46c3-97f3-4254d0562c8d  Destination             Casablanca Marriott Hotel    NaN
+3     4  c36c2166-62cb-47a7-8ffe-cac042c9cf85  Destination                     Kenzi Rose Garden    NaN
+4     5  f2c2555b-c580-4367-849a-3f99c1f38c1d  Destination        ONOMO Hotel Casablanca Airport    NaN
+5     6  027499d3-f4fe-4731-ba70-803d008bb76a  Destination  Souq Waqif Boutique Hotels by Tivoli    0.0
+6     7  01bc8a51-51cb-4e93-b578-0043e928868c  Destination                          Nessyou Fish    0.0
+7     8  004fbb89-f7df-420d-a158-02ab5d68ce60  Destination                  Movenpick Hotel Doha    0.0
+8     9  05c90830-249e-4248-81eb-3ceb0fbef529  Destination  Novotel Casablanca City Center Hotel    0.0
+9    10  05bbaad2-2ccf-4aec-9685-35d779d20d79  Destination                       Sovereign Hotel    0.0
+
+Recommendations for user 0044e186-bf71-4f96-8c27-97924a81b14b:
+
+  Top Trip recommendations:
+   rank                                  item  type                    name  score
+0     1  05cfceb2-9e2a-43c5-9d0b-20fc25d1c96f  Trip       Maghreb Discovery    0.0
+1     2  273774a6-7fdd-429b-8d78-6ec63b909ba6  Trip                  string    0.0
+2     3  728e6824-d306-4e55-8fa6-67b2619ebad7  Trip          Dubai Explorer    0.0
+3     4  7f283076-3378-4bf1-a556-ce74099d4e15  Trip     Oman Heritage Trail    0.0
+4     5  9989e4e2-1dc6-46a4-9b06-080f6ea07408  Trip  Beirut Cultural Escape    0.0
+
+  Epsilon-greedy (0.5) Trip recommendations:
+   rank                                  item  type                    name  score
+0     1  9989e4e2-1dc6-46a4-9b06-080f6ea07408  Trip  Beirut Cultural Escape    0.0
+1     2  728e6824-d306-4e55-8fa6-67b2619ebad7  Trip          Dubai Explorer    0.0
+2     3  728e6824-d306-4e55-8fa6-67b2619ebad7  Trip          Dubai Explorer    NaN
+3     4  9989e4e2-1dc6-46a4-9b06-080f6ea07408  Trip  Beirut Cultural Escape    NaN
+4     5  7f283076-3378-4bf1-a556-ce74099d4e15  Trip     Oman Heritage Trail    0.0
+5     6  273774a6-7fdd-429b-8d78-6ec63b909ba6  Trip                  string    NaN
+6     7  05cfceb2-9e2a-43c5-9d0b-20fc25d1c96f  Trip       Maghreb Discovery    NaN
+7     8  05cfceb2-9e2a-43c5-9d0b-20fc25d1c96f  Trip       Maghreb Discovery    0.0
+8     9  273774a6-7fdd-429b-8d78-6ec63b909ba6  Trip                  string    0.0
+9    10  7f283076-3378-4bf1-a556-ce74099d4e15  Trip     Oman Heritage Trail    NaN
+
+  Top Event recommendations:
+   rank                                  item   type                                  name     score
+0     1  e74d417b-6820-4014-ae4c-e1b004a92645  Event  International Festival of the Sahara  0.040017
+1     2  b7763c18-014d-4294-a38c-5ac665305c15  Event        Gnawa and World Music Festival  0.028866
+2     3  d609d5ce-36ad-42d1-88d2-404a61225fb3  Event     15th edition of Mawazine Festival  0.026650
+3     4  476f72ad-8a5e-417a-ad64-6a0c9d7cf9d5  Event                            Pangea Day  0.025849
+4     5  ffa92f97-2ec5-43e0-a1af-915d830c1b25  Event    International Festival of Carthage  0.024543
+
+  Epsilon-greedy (0.5) Event recommendations:
+   rank                                  item   type                                  name     score
+0     1  cb361029-5561-4e99-a100-437d6144d1bf  Event                    Marrakech Biennale       NaN
+1     2  0b39ee4b-46cd-4c71-8ce1-d24604cd44a9  Event                                Tweeza       NaN
+2     3  476f72ad-8a5e-417a-ad64-6a0c9d7cf9d5  Event                            Pangea Day  0.025849
+3     4  6272659d-272d-43da-8566-15d885a7b97d  Event          Cairo Congress of Arab Music       NaN
+4     5  e74d417b-6820-4014-ae4c-e1b004a92645  Event  International Festival of the Sahara  0.040017
+5     6  ffa92f97-2ec5-43e0-a1af-915d830c1b25  Event    International Festival of Carthage  0.024543
+6     7  b7763c18-014d-4294-a38c-5ac665305c15  Event        Gnawa and World Music Festival  0.028866
+7     8  d609d5ce-36ad-42d1-88d2-404a61225fb3  Event     15th edition of Mawazine Festival  0.026650
+8     9  81753b29-07e3-4452-8f5d-35b643b25cc8  Event                           Noor Riyadh       NaN
+9    10  3f84526d-6c7e-498a-bf64-306f6e383f52  Event                        Eid il-Burbara       NaN
+
+  Top Destination recommendations:
+   rank                                  item         type                    name     score
+0     1  81cf0c7f-ec30-40d6-ab8b-f7c10aa0ef6c  Destination    Hunters Room & Grill  0.033988
+1     2  32d22b9a-8a31-4160-8165-f2c204a64820  Destination             Riad Meriem  0.025474
+2     3  efa02fec-07f8-4e18-9c5c-b52fa93b994c  Destination     Le Casablanca Hotel  0.020669
+3     4  b504e290-e78a-485f-8cfe-e850ac4f2842  Destination      Oryx Airport Hotel  0.019322
+4     5  9036f20b-c07f-46a4-b330-fdb328d465ed  Destination  Mood's Cafe-Restaurant  0.011384
+
+  Epsilon-greedy (0.5) Destination recommendations:
+   rank                                  item         type                                      name     score
+0     1  81cf0c7f-ec30-40d6-ab8b-f7c10aa0ef6c  Destination                      Hunters Room & Grill  0.033988
+1     2  efa02fec-07f8-4e18-9c5c-b52fa93b994c  Destination                       Le Casablanca Hotel  0.020669
+2     3  6595b972-4cd4-4315-b9dd-fa5922090196  Destination           Le Zar Restaurant & Bar A Tapas       NaN
+3     4  9fe33091-caf1-4473-b0a3-4efa8710dda2  Destination                        The St. Regis Doha       NaN
+4     5  63bbb98d-19c6-4fbd-a477-4274379e7b3b  Destination                  Royal Mansour Casablanca       NaN
+5     6  49dd574b-c12b-4612-a82d-0981baf7193b  Destination  Kyriad Residence Casablanca Centre Ville       NaN
+6     7  9036f20b-c07f-46a4-b330-fdb328d465ed  Destination                    Mood's Cafe-Restaurant  0.011384
+7     8  8f856ee9-5420-427c-b9d3-4d549d49f15d  Destination             Four Seasons Hotel Casablanca       NaN
+8     9  b504e290-e78a-485f-8cfe-e850ac4f2842  Destination                        Oryx Airport Hotel  0.019322
+9    10  32d22b9a-8a31-4160-8165-f2c204a64820  Destination                               Riad Meriem  0.025474
+
+Recommendations for user 0062bc73-7c12-40ad-9247-954465cd7c47:
+
+  Top Trip recommendations:
+   rank                                  item  type                    name  score
+0     1  05cfceb2-9e2a-43c5-9d0b-20fc25d1c96f  Trip       Maghreb Discovery    0.0
+1     2  273774a6-7fdd-429b-8d78-6ec63b909ba6  Trip                  string    0.0
+2     3  728e6824-d306-4e55-8fa6-67b2619ebad7  Trip          Dubai Explorer    0.0
+3     4  7f283076-3378-4bf1-a556-ce74099d4e15  Trip     Oman Heritage Trail    0.0
+4     5  9989e4e2-1dc6-46a4-9b06-080f6ea07408  Trip  Beirut Cultural Escape    0.0
+
+  Epsilon-greedy (0.5) Trip recommendations:
+   rank                                  item  type                    name  score
+0     1  273774a6-7fdd-429b-8d78-6ec63b909ba6  Trip                  string    0.0
+1     2  728e6824-d306-4e55-8fa6-67b2619ebad7  Trip          Dubai Explorer    NaN
+2     3  05cfceb2-9e2a-43c5-9d0b-20fc25d1c96f  Trip       Maghreb Discovery    0.0
+3     4  7f283076-3378-4bf1-a556-ce74099d4e15  Trip     Oman Heritage Trail    NaN
+4     5  728e6824-d306-4e55-8fa6-67b2619ebad7  Trip          Dubai Explorer    0.0
+5     6  9989e4e2-1dc6-46a4-9b06-080f6ea07408  Trip  Beirut Cultural Escape    0.0
+6     7  e228007d-9609-4b61-bb4a-92cd5efa710a  Trip        Egyptian Wonders    NaN
+7     8  9989e4e2-1dc6-46a4-9b06-080f6ea07408  Trip  Beirut Cultural Escape    NaN
+8     9  7f283076-3378-4bf1-a556-ce74099d4e15  Trip     Oman Heritage Trail    0.0
+9    10  05cfceb2-9e2a-43c5-9d0b-20fc25d1c96f  Trip       Maghreb Discovery    NaN
+
+  Top Event recommendations:
+   rank                                  item   type            name     score
+0     1  3e613be3-ed8f-401b-a05a-a9bc4a313a68  Event       Expo 2030  0.018737
+1     2  3f84526d-6c7e-498a-bf64-306f6e383f52  Event  Eid il-Burbara  0.018668
+2     3  481f380f-8856-46e9-b018-48af7f84c92c  Event  Eid il-Burbara  0.018668
+3     4  a90a7a2a-f66d-4a78-ac31-f30bb07609f4  Event  Eid il-Burbara  0.018668
+4     5  39d45d17-233a-4b10-90a2-b03db8b8043d  Event     Kha b-Nisan  0.007971
+
+  Epsilon-greedy (0.5) Event recommendations:
+   rank                                  item   type                                  name     score
+0     1  7bea49ff-2a28-409a-a81c-cae1c4efa48b  Event       Hammamet International Festival       NaN
+1     2  481f380f-8856-46e9-b018-48af7f84c92c  Event                        Eid il-Burbara  0.018668
+2     3  3f84526d-6c7e-498a-bf64-306f6e383f52  Event                        Eid il-Burbara  0.018668
+3     4  39d45d17-233a-4b10-90a2-b03db8b8043d  Event                           Kha b-Nisan  0.007971
+4     5  e74d417b-6820-4014-ae4c-e1b004a92645  Event  International Festival of the Sahara       NaN
+5     6  d93fec95-21bc-4e64-a579-ede78408c592  Event          2008 Arab Capital of Culture       NaN
+6     7  e08b1c17-de0a-4e46-9963-97ecbb702160  Event                    New Think Festival       NaN
+7     8  a90a7a2a-f66d-4a78-ac31-f30bb07609f4  Event                        Eid il-Burbara  0.018668
+8     9  3e613be3-ed8f-401b-a05a-a9bc4a313a68  Event                             Expo 2030  0.018737
+9    10  bfb6be6e-1f9c-4abc-be24-d0de031d6f93  Event                        Visa for Music       NaN
+
+  Top Destination recommendations:
+   rank                                  item         type                  name     score
+0     1  d2cfdd87-5c1c-4aee-960a-3c2cbea50169  Destination     Yummy and Healthy  0.027577
+1     2  40c7d8fa-574c-45d5-8c75-1888a43563aa  Destination  Iraq National Museum  0.026730
+2     3  a8b1026e-a1e3-4a99-82cb-b090bf0c25f9  Destination       Sel & Miel Doha  0.025568
+3     4  18535f6c-b3b1-4ca4-85ba-f59b382295ec  Destination       Organic Kitchen  0.017448
+4     5  836d0872-f197-4437-846f-311721d48842  Destination         Palm Jumeirah  0.015150
+
+  Epsilon-greedy (0.5) Destination recommendations:
+   rank                                  item         type                                name     score
+0     1  a8b1026e-a1e3-4a99-82cb-b090bf0c25f9  Destination                     Sel & Miel Doha  0.025568
+1     2  d2cfdd87-5c1c-4aee-960a-3c2cbea50169  Destination                   Yummy and Healthy  0.027577
+2     3  16530652-b70b-4717-92e8-b2300889fbe2  Destination                        Beirut Souks       NaN
+3     4  599e6224-879c-48b9-806d-9395550dce7e  Destination                 Terrasse des Epices       NaN
+4     5  836d0872-f197-4437-846f-311721d48842  Destination                       Palm Jumeirah  0.015150
+5     6  14363688-3316-4542-a76e-36ff0525b153  Destination  The Central House Marrakech Medina       NaN
+6     7  40c7d8fa-574c-45d5-8c75-1888a43563aa  Destination                Iraq National Museum  0.026730
+7     8  cf713387-3e93-44c7-986e-e4849aa32a73  Destination                    Pyramids of Giza       NaN
+8     9  11a37c30-d470-47c5-893e-5d5df050c282  Destination        M Rooftop By Medina Heritage       NaN
+9    10  18535f6c-b3b1-4ca4-85ba-f59b382295ec  Destination                     Organic Kitchen  0.017448
+
+Recommendations for user 00ad60d4-c10a-43e6-bec5-bad200852e6e:
+
+  Top Trip recommendations:
+   rank                                  item  type                    name  score
+0     1  05cfceb2-9e2a-43c5-9d0b-20fc25d1c96f  Trip       Maghreb Discovery    0.0
+1     2  273774a6-7fdd-429b-8d78-6ec63b909ba6  Trip                  string    0.0
+2     3  728e6824-d306-4e55-8fa6-67b2619ebad7  Trip          Dubai Explorer    0.0
+3     4  7f283076-3378-4bf1-a556-ce74099d4e15  Trip     Oman Heritage Trail    0.0
+4     5  9989e4e2-1dc6-46a4-9b06-080f6ea07408  Trip  Beirut Cultural Escape    0.0
+
+  Epsilon-greedy (0.5) Trip recommendations:
+   rank                                  item  type                    name  score
+0     1  273774a6-7fdd-429b-8d78-6ec63b909ba6  Trip                  string    0.0
+1     2  e228007d-9609-4b61-bb4a-92cd5efa710a  Trip        Egyptian Wonders    NaN
+2     3  9989e4e2-1dc6-46a4-9b06-080f6ea07408  Trip  Beirut Cultural Escape    NaN
+3     4  9989e4e2-1dc6-46a4-9b06-080f6ea07408  Trip  Beirut Cultural Escape    0.0
+4     5  728e6824-d306-4e55-8fa6-67b2619ebad7  Trip          Dubai Explorer    NaN
+5     6  7f283076-3378-4bf1-a556-ce74099d4e15  Trip     Oman Heritage Trail    0.0
+6     7  728e6824-d306-4e55-8fa6-67b2619ebad7  Trip          Dubai Explorer    0.0
+7     8  05cfceb2-9e2a-43c5-9d0b-20fc25d1c96f  Trip       Maghreb Discovery    0.0
+8     9  7f283076-3378-4bf1-a556-ce74099d4e15  Trip     Oman Heritage Trail    NaN
+9    10  273774a6-7fdd-429b-8d78-6ec63b909ba6  Trip                  string    NaN
+
+  Top Event recommendations:
+   rank                                  item   type                             name     score
+0     1  aba6bba6-1bc0-4118-a842-1dacaf8b2a4a  Event       Annual Warrior Competition  0.015974
+1     2  adda95a1-082d-497b-accf-197d9015d7b5  Event  Baghdad International Book Fair  0.014675
+2     3  3f84526d-6c7e-498a-bf64-306f6e383f52  Event                   Eid il-Burbara  0.008310
+3     4  481f380f-8856-46e9-b018-48af7f84c92c  Event                   Eid il-Burbara  0.008310
+4     5  a90a7a2a-f66d-4a78-ac31-f30bb07609f4  Event                   Eid il-Burbara  0.008310
+
+  Epsilon-greedy (0.5) Event recommendations:
+   rank                                  item   type                             name     score
+0     1  481f380f-8856-46e9-b018-48af7f84c92c  Event                   Eid il-Burbara  0.008310
+1     2  96b936fa-de64-4e08-b04d-8405f475cf13  Event            Friday Market (Amman)       NaN
+2     3  a91bcea1-1dfe-475b-a80f-7270f0929337  Event                   Ehmej Festival       NaN
+3     4  7ee3a311-6266-4deb-85ca-73b950a877cd  Event             National Day of Oman       NaN
+4     5  a90a7a2a-f66d-4a78-ac31-f30bb07609f4  Event                   Eid il-Burbara  0.008310
+5     6  207827a8-670a-4bf1-b580-32481b94a2b2  Event               Egypt Defence Expo       NaN
+6     7  aba6bba6-1bc0-4118-a842-1dacaf8b2a4a  Event       Annual Warrior Competition  0.015974
+7     8  3f84526d-6c7e-498a-bf64-306f6e383f52  Event                   Eid il-Burbara  0.008310
+8     9  adda95a1-082d-497b-accf-197d9015d7b5  Event  Baghdad International Book Fair  0.014675
+9    10  83e9dbfb-92a9-4352-809e-8bff9ea093a4  Event                           Nowruz       NaN
+
+  Top Destination recommendations:
+   rank                                  item         type                                        name     score
+0     1  5b60ce9d-ca42-4995-a704-b837d1836e71  Destination                       Bardo National Museum  0.025367
+1     2  197f7d82-141f-4f37-80f0-d6eac7cbc12b  Destination                                 Ezdan Hotel  0.017420
+2     3  a8b1026e-a1e3-4a99-82cb-b090bf0c25f9  Destination                             Sel & Miel Doha  0.006970
+3     4  599e6224-879c-48b9-806d-9395550dce7e  Destination                         Terrasse des Epices  0.006389
+4     5  dcd43c2c-f07a-4ba4-a55c-ab2de9faf4c0  Destination  Radisson Blu Hotel, Casablanca City Center  0.006114
+
+  Epsilon-greedy (0.5) Destination recommendations:
+   rank                                  item         type                                        name     score
+0     1  d5139900-253f-4b2d-ac52-6c61b5a24287  Destination                  Pensee - Cafe & Restaurant       NaN
+1     2  5b60ce9d-ca42-4995-a704-b837d1836e71  Destination                       Bardo National Museum  0.025367
+2     3  0b0c68a5-7e4a-478b-a9ef-359067e7cf0b  Destination                         The Egyptian Museum       NaN
+3     4  c36c2166-62cb-47a7-8ffe-cac042c9cf85  Destination                           Kenzi Rose Garden       NaN
+4     5  a8b1026e-a1e3-4a99-82cb-b090bf0c25f9  Destination                             Sel & Miel Doha  0.006970
+5     6  599e6224-879c-48b9-806d-9395550dce7e  Destination                         Terrasse des Epices  0.006389
+6     7  dcd43c2c-f07a-4ba4-a55c-ab2de9faf4c0  Destination  Radisson Blu Hotel, Casablanca City Center  0.006114
+7     8  af3006a8-bdd4-4062-8a08-60af18e2e644  Destination                             Ibis Casablanca       NaN
+8     9  197f7d82-141f-4f37-80f0-d6eac7cbc12b  Destination                                 Ezdan Hotel  0.017420
+9    10  a33207c0-2878-4973-bcf6-2f16309156d3  Destination                                  La Cascade       NaN
+
+Recommendations for user 00dac0b9-fd9d-4499-afff-fc842f818b59:
+
+  Top Trip recommendations:
+   rank                                  item  type                    name  score
+0     1  05cfceb2-9e2a-43c5-9d0b-20fc25d1c96f  Trip       Maghreb Discovery    0.0
+1     2  273774a6-7fdd-429b-8d78-6ec63b909ba6  Trip                  string    0.0
+2     3  728e6824-d306-4e55-8fa6-67b2619ebad7  Trip          Dubai Explorer    0.0
+3     4  7f283076-3378-4bf1-a556-ce74099d4e15  Trip     Oman Heritage Trail    0.0
+4     5  9989e4e2-1dc6-46a4-9b06-080f6ea07408  Trip  Beirut Cultural Escape    0.0
+
+  Epsilon-greedy (0.5) Trip recommendations:
+   rank                                  item  type                    name  score
+0     1  273774a6-7fdd-429b-8d78-6ec63b909ba6  Trip                  string    NaN
+1     2  05cfceb2-9e2a-43c5-9d0b-20fc25d1c96f  Trip       Maghreb Discovery    0.0
+2     3  7f283076-3378-4bf1-a556-ce74099d4e15  Trip     Oman Heritage Trail    0.0
+3     4  9989e4e2-1dc6-46a4-9b06-080f6ea07408  Trip  Beirut Cultural Escape    0.0
+4     5  728e6824-d306-4e55-8fa6-67b2619ebad7  Trip          Dubai Explorer    0.0
+5     6  7f283076-3378-4bf1-a556-ce74099d4e15  Trip     Oman Heritage Trail    NaN
+6     7  e228007d-9609-4b61-bb4a-92cd5efa710a  Trip        Egyptian Wonders    NaN
+7     8  728e6824-d306-4e55-8fa6-67b2619ebad7  Trip          Dubai Explorer    NaN
+8     9  9989e4e2-1dc6-46a4-9b06-080f6ea07408  Trip  Beirut Cultural Escape    NaN
+9    10  273774a6-7fdd-429b-8d78-6ec63b909ba6  Trip                  string    0.0
+
+  Top Event recommendations:
+   rank                                  item   type                     name  score
+0     1                                     1  Event               Test Event    0.0
+1     2  0b39ee4b-46cd-4c71-8ce1-d24604cd44a9  Event                   Tweeza    0.0
+2     3  0fd84a3e-84aa-44b8-9fd1-4244d0a10d30  Event                  Bujlood    0.0
+3     4  10e6c8d4-c850-40d1-a5b7-4c0a49b42e07  Event            Moga Festival    0.0
+4     5  139e8d17-74ee-4966-95d8-b404af326457  Event  Mawazine Music Festival    0.0
+
+  Epsilon-greedy (0.5) Event recommendations:
+   rank                                  item   type                             name  score
+0     1  10e6c8d4-c850-40d1-a5b7-4c0a49b42e07  Event                    Moga Festival    0.0
+1     2  0b39ee4b-46cd-4c71-8ce1-d24604cd44a9  Event                           Tweeza    0.0
+2     3  a988c217-a331-4e19-87b0-fef52ceb06e5  Event                  Jerash Festival    NaN
+3     4                                     1  Event                       Test Event    0.0
+4     5  7ee3a311-6266-4deb-85ca-73b950a877cd  Event             National Day of Oman    NaN
+5     6  0fd84a3e-84aa-44b8-9fd1-4244d0a10d30  Event                          Bujlood    0.0
+6     7  139e8d17-74ee-4966-95d8-b404af326457  Event          Mawazine Music Festival    0.0
+7     8  66838d77-8445-49f5-99b1-f4727ffbd907  Event                    Beirut Nights    NaN
+8     9  7bea49ff-2a28-409a-a81c-cae1c4efa48b  Event  Hammamet International Festival    NaN
+9    10  6272659d-272d-43da-8566-15d885a7b97d  Event     Cairo Congress of Arab Music    NaN
+
+  Top Destination recommendations:
+   rank                                  item         type                                  name  score
+0     1  004fbb89-f7df-420d-a158-02ab5d68ce60  Destination                  Movenpick Hotel Doha    0.0
+1     2  01bc8a51-51cb-4e93-b578-0043e928868c  Destination                          Nessyou Fish    0.0
+2     3  027499d3-f4fe-4731-ba70-803d008bb76a  Destination  Souq Waqif Boutique Hotels by Tivoli    0.0
+3     4  05bbaad2-2ccf-4aec-9685-35d779d20d79  Destination                       Sovereign Hotel    0.0
+4     5  05c90830-249e-4248-81eb-3ceb0fbef529  Destination  Novotel Casablanca City Center Hotel    0.0
+
+  Epsilon-greedy (0.5) Destination recommendations:
+   rank                                  item         type                                       name  score
+0     1  027499d3-f4fe-4731-ba70-803d008bb76a  Destination       Souq Waqif Boutique Hotels by Tivoli    0.0
+1     2  05c90830-249e-4248-81eb-3ceb0fbef529  Destination       Novotel Casablanca City Center Hotel    0.0
+2     3  05bbaad2-2ccf-4aec-9685-35d779d20d79  Destination                            Sovereign Hotel    0.0
+3     4  01bc8a51-51cb-4e93-b578-0043e928868c  Destination                               Nessyou Fish    0.0
+4     5  004fbb89-f7df-420d-a158-02ab5d68ce60  Destination                       Movenpick Hotel Doha    0.0
+5     6  efa02fec-07f8-4e18-9c5c-b52fa93b994c  Destination                        Le Casablanca Hotel    NaN
+6     7  58c8e567-115f-428b-bb6d-f57c5416ebba  Destination                    Kenzi Club Agdal Medina    NaN
+7     8  f610bfb9-44ba-45dd-a50f-f55305fa31d0  Destination    Sofitel Marrakech Palais Imperial & Spa    NaN
+8     9  592097ca-232b-415e-9f31-c9a1a6cb09a4  Destination  Movenpick Hotel Mansour Eddahbi Marrakech    NaN
+9    10  14363688-3316-4542-a76e-36ff0525b153  Destination         The Central House Marrakech Medina    NaN

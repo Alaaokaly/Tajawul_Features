@@ -1,0 +1,49 @@
+=== ItemBasedCF Evaluation Started at 20250425_185915 ===
+Loading data...
+Data loaded: 11893 interactions, 2016 users
+Using 1000 test users for evaluation
+Starting parameter grid search evaluation...
+Parameter tuning results saved to eval_cf_item/parameter_tuning_results_20250425_185915.csv
+
+Parameter tuning results summary:
+       k_neighbors     min_sim  min_overlap    fit_time   precision      recall        ndcg    hit_rate         mrr    coverage   diversity     novelty  evaluated_users
+count   105.000000  105.000000   105.000000  105.000000  105.000000  105.000000  105.000000  105.000000  105.000000  105.000000  105.000000  105.000000            105.0
+mean     21.000000    0.053000     1.000000   10.171147    0.005874    0.066390    0.037317    0.141952    0.011310    0.814995    0.482271   22.390345           1000.0
+std       8.643584    0.048987     0.820413    7.644649    0.001349    0.014208    0.007708    0.028937    0.002219    0.288455    0.271666    0.141180              0.0
+min      10.000000    0.001000     0.000000    4.356728    0.004462    0.051183    0.029317    0.110000    0.009106    0.174468    0.021602   22.156302           1000.0
+25%      15.000000    0.010000     0.000000    5.224515    0.004846    0.055800    0.031448    0.121000    0.009510    0.791489    0.210848   22.272381           1000.0
+50%      20.000000    0.040000     1.000000    7.580157    0.005192    0.059383    0.033508    0.129000    0.010093    0.970213    0.608781   22.337738           1000.0
+75%      25.000000    0.090000     2.000000   12.415324    0.006731    0.075583    0.042298    0.162000    0.012499    1.000000    0.733127   22.551084           1000.0
+max      35.000000    0.150000     2.000000   46.878189    0.009040    0.098983    0.054829    0.207000    0.016336    1.000000    0.746600   22.602712           1000.0
+
+Best parameters based on NDCG: k=10.0, min_sim=0.001, min_overlap=2.0
+
+Training model with best parameters...
+Model fitted in 4.72 seconds
+
+Evaluating epsilon-greedy strategy...
+Epsilon-greedy evaluation results saved to eval_cf_item/epsilon_greedy_results_20250425_185915.csv
+
+Epsilon-greedy evaluation results:
+   epsilon  precision    recall  diversity    novelty  evaluated_users
+0      0.0   0.009040  0.098983   0.644646  22.156302             1000
+1      0.1   0.008751  0.095700   0.682106  23.205346             1000
+2      0.2   0.009298  0.100950   0.714449  24.273015             1000
+3      0.3   0.008989  0.099783   0.741074  25.336944             1000
+4      0.4   0.008898  0.097667   0.762091  26.414243             1000
+5      0.5   0.008341  0.091750   0.787437  26.378126             1000
+
+Best epsilon for diversity: 0.5
+Best epsilon for precision: 0.2
+
+Generating visualizations...
+Parameter tuning visualization saved to eval_cf_item/parameter_tuning_vis_20250425_185915.png
+Epsilon-greedy visualization saved to eval_cf_item/epsilon_greedy_vis_20250425_185915.png
+K-neighbors impact visualization saved to eval_cf_item/k_neighbors_impact_20250425_185915.png
+Minimum similarity impact visualization saved to eval_cf_item/min_sim_impact_20250425_185915.png
+
+Generating sample recommendations with best model...
+Sample recommendations saved to eval_cf_item/sample_recommendations_20250425_185915.txt
+Comprehensive evaluation report saved to eval_cf_item/evaluation_report_item.md
+
+=== Evaluation Completed at 20250425_194706 ===
