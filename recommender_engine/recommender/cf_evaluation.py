@@ -8,7 +8,10 @@ from CF_KNN_item_based import ItemBasedCF
 import matplotlib.pyplot as plt
 import time
 from typing import Dict, List, Tuple, Optional
-
+import time
+import os
+import json
+from datetime import datetime
 
 class RecommenderEvaluator:
 
@@ -385,55 +388,124 @@ class RecommenderEvaluator:
         plt.tight_layout()
         return fig
 
-# Example usage
-if __name__ == "__main__":
-    # Initialize database client
-    db_client = Neo4jClient()
-    
-    # Create evaluator
-    evaluator = RecommenderEvaluator(db_client)
-      
-   
-    
-    # Load data and split into training/test sets
+
+
+
+
+
+db_client = Neo4jClient()
+
+# Create evaluator
+evaluator = RecommenderEvaluator(db_client)
+
+# Create output directory if it doesn't exist
+output_dir = "eval_cf_user"
+os.makedirs(output_dir, exist_ok=True)
+
+# Log file setup
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+log_filename = f"{output_dir}/evaluation_log_{timestamp}.txt"
+
+def log_message(message, print_to_console=True):
+    """Write message to log file and optionally print to console"""
+    with open(log_filename, 'a') as f:
+        f.write(f"{message}\n")
+    if print_to_console:
+        print(message)
+
+log_message(f"=== UserBasedCF Evaluation Started at {timestamp} ===")
+
+# Load data and split into training/test sets
+try:
+    log_message("Loading data...")
     evaluator.load_data()
     evaluator.train_test_split(test_size=0.3)
-    
-    # Define parameters to test
-    param_grid = {
-        'k_neighbors': [ 10, 15, 20, 25,35],
-        'min_sim': [0.001, 0.01, 0.02,0.04,0.06,0.09,0.15],
-        'min_overlap': [0, 1, 2]
-    }
-    model =  UserBasedCF(db_client)
-    
+    log_message(f"Data loaded: {len(evaluator.interactions_df)} interactions, {evaluator.interactions_df['user'].nunique()} users")
+except Exception as e:
+    log_message(f"Error loading data: {str(e)}")
+    db_client.close()
+    exit(1)
+
+# Define parameters to test
+param_grid = {
+    'k_neighbors': [10, 15, 20, 25, 35],
+    'min_sim': [0.001, 0.01, 0.02, 0.04, 0.06, 0.09, 0.15],
+    'min_overlap': [0, 1, 2]
+}
+
+# Initial model for getting test users
+try:
+    model = UserBasedCF(db_client)
     model.fit()
     # Define a subset of users to test on (for faster evaluation)
     test_user_ids = model.user_indices[:1000]
-    
-    # Evaluate model with different parameters
+    log_message(f"Using {len(test_user_ids)} test users for evaluation")
+except Exception as e:
+    log_message(f"Error initializing model: {str(e)}")
+    db_client.close()
+    exit(1)
+
+# Evaluate model with different parameters
+try:
+    log_message("Starting parameter grid search evaluation...")
     results = evaluator.evaluate_model(param_grid, test_users=test_user_ids)
     
-    # Print results
-    print("\nParameter tuning results:")
-    print(results)
+    # Save results to CSV
+    results_csv_path = f"{output_dir}/parameter_tuning_results_{timestamp}.csv"
+    results.to_csv(results_csv_path, index=False)
+    log_message(f"Parameter tuning results saved to {results_csv_path}")
+    
+    # Log summary of results
+    log_message("\nParameter tuning results summary:")
+    summary_stats = results.describe()
+    log_message(summary_stats.to_string())
     
     # Find best parameters
     best_ndcg_idx = results['ndcg'].idxmax()
     best_params = results.iloc[best_ndcg_idx]
-    print(f"\nBest parameters based on NDCG: k={best_params['k_neighbors']}, "
+    log_message(f"\nBest parameters based on NDCG: k={best_params['k_neighbors']}, "
           f"min_sim={best_params['min_sim']}, min_overlap={best_params['min_overlap']}")
     
-    # Train model with best parameters
+    # Save best parameters as JSON
+    best_params_json = {
+        'k_neighbors': int(best_params['k_neighbors']),
+        'min_sim': float(best_params['min_sim']),
+        'min_overlap': int(best_params['min_overlap']),
+        'ndcg': float(best_params['ndcg']),
+        'precision': float(best_params['precision']),
+        'recall': float(best_params['recall']),
+        'hit_rate': float(best_params['hit_rate']),
+        'mrr': float(best_params['mrr']),
+        'coverage': float(best_params['coverage']),
+        'diversity': float(best_params['diversity']),
+        'novelty': float(best_params['novelty'])
+    }
+    
+    with open(f"{output_dir}/best_params_{timestamp}.json", 'w') as f:
+        json.dump(best_params_json, f, indent=4)
+    
+except Exception as e:
+    log_message(f"Error during parameter tuning: {str(e)}")
+    db_client.close()
+    exit(1)
+
+# Train model with best parameters
+try:
+    log_message("\nTraining model with best parameters...")
     best_model = UserBasedCF(
         db_client, 
         k_neighbors=int(best_params['k_neighbors']), 
-        min_sim=best_params['min_sim'], 
+        min_sim=float(best_params['min_sim']), 
         min_overlap=int(best_params['min_overlap'])
     )
+    
+    start_time = time.time()
     best_model.fit()
+    fit_time = time.time() - start_time
+    log_message(f"Model fitted in {fit_time:.2f} seconds")
     
     # Evaluate epsilon-greedy strategy
+    log_message("\nEvaluating epsilon-greedy strategy...")
     epsilon_values = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
     epsilon_results = evaluator.evaluate_epsilon_greedy(
         best_model, 
@@ -441,14 +513,166 @@ if __name__ == "__main__":
         epsilon_values=epsilon_values
     )
     
-    print("\nEpsilon-greedy evaluation results:")
-    print(epsilon_results)
+    # Save epsilon-greedy results
+    epsilon_csv_path = f"{output_dir}/epsilon_greedy_results_{timestamp}.csv"
+    epsilon_results.to_csv(epsilon_csv_path, index=False)
+    log_message(f"Epsilon-greedy evaluation results saved to {epsilon_csv_path}")
     
-    # Visualize results
-    param_fig = evaluator.visualize_results(results, param_col='k_neighbors')
-    epsilon_fig = evaluator.visualize_results(epsilon_results, param_col='epsilon')
-    print(param_fig)
-    print(epsilon_fig)
+    log_message("\nEpsilon-greedy evaluation results:")
+    log_message(epsilon_results.to_string())
     
-    # Close database connection
+    # Find best epsilon value
+    best_epsilon_idx = epsilon_results['diversity'].idxmax()
+    best_epsilon = epsilon_results.iloc[best_epsilon_idx]
+    log_message(f"\nBest epsilon for diversity: {best_epsilon['epsilon']}")
+    
+    best_epsilon_precision_idx = epsilon_results['precision'].idxmax()
+    best_epsilon_precision = epsilon_results.iloc[best_epsilon_precision_idx]
+    log_message(f"Best epsilon for precision: {best_epsilon_precision['epsilon']}")
+    
+except Exception as e:
+    log_message(f"Error during epsilon-greedy evaluation: {str(e)}")
     db_client.close()
+    exit(1)
+
+# Generate and save visualizations
+try:
+    log_message("\nGenerating visualizations...")
+    
+    # Parameter tuning visualization
+    param_fig = evaluator.visualize_results(results, param_col='k_neighbors')
+    param_fig_path = f"{output_dir}/parameter_tuning_vis_{timestamp}.png"
+    param_fig.savefig(param_fig_path)
+    log_message(f"Parameter tuning visualization saved to {param_fig_path}")
+    
+    # Epsilon-greedy visualization
+    epsilon_fig = evaluator.visualize_results(epsilon_results, param_col='epsilon')
+    epsilon_fig_path = f"{output_dir}/epsilon_greedy_vis_{timestamp}.png"
+    epsilon_fig.savefig(epsilon_fig_path)
+    log_message(f"Epsilon-greedy visualization saved to {epsilon_fig_path}")
+    
+    # Additional visualizations for specific metrics
+    
+    # K-neighbors impact on precision and recall
+    plt.figure(figsize=(10, 6))
+    k_results = results.groupby('k_neighbors')[['precision', 'recall']].mean()
+    k_results.plot(kind='line', marker='o')
+    plt.title('Impact of k_neighbors on Precision and Recall')
+    plt.xlabel('Number of Neighbors (k)')
+    plt.ylabel('Score')
+    plt.grid(True, linestyle='--', alpha=0.7)
+    k_impact_path = f"{output_dir}/k_neighbors_impact_{timestamp}.png"
+    plt.savefig(k_impact_path)
+    log_message(f"K-neighbors impact visualization saved to {k_impact_path}")
+    
+    # Min similarity impact on metrics
+    plt.figure(figsize=(10, 6))
+    sim_results = results.groupby('min_sim')[['precision', 'diversity', 'novelty']].mean()
+    sim_results.plot(kind='line', marker='o')
+    plt.title('Impact of Minimum Similarity on Key Metrics')
+    plt.xlabel('Minimum Similarity Threshold')
+    plt.ylabel('Score')
+    plt.grid(True, linestyle='--', alpha=0.7)
+    sim_impact_path = f"{output_dir}/min_sim_impact_{timestamp}.png"
+    plt.savefig(sim_impact_path)
+    log_message(f"Minimum similarity impact visualization saved to {sim_impact_path}")
+    
+except Exception as e:
+    log_message(f"Error generating visualizations: {str(e)}")
+
+# Sample recommendations
+try:
+    log_message("\nGenerating sample recommendations with best model...")
+    sample_users = test_user_ids[:5]  # Take 5 sample users
+    
+    sample_recs_path = f"{output_dir}/sample_recommendations_{timestamp}.txt"
+    with open(sample_recs_path, 'w') as f:
+        for user_id in sample_users:
+            f.write(f"\nRecommendations for user {user_id}:\n")
+            for item_type in ['Trip', 'Event', 'Destination']:
+                try:
+                    recs = best_model.recommend(user_id, top_n=5, item_type=item_type)
+                    f.write(f"\n  Top {item_type} recommendations:\n")
+                    f.write(recs.to_string() + "\n")
+                    
+                    # With epsilon-greedy (best epsilon value)
+                    best_eps = best_epsilon['epsilon']
+                    eps_recs = best_model.recommend_with_epsilon_greedy(
+                        user_id, 
+                        top_candidates_df=recs,
+                        item_type=item_type,
+                        epsilon=best_eps
+                    )
+                    f.write(f"\n  Epsilon-greedy ({best_eps}) {item_type} recommendations:\n")
+                    f.write(eps_recs.to_string() + "\n")
+                except Exception as e:
+                    f.write(f"  Error getting {item_type} recommendations: {str(e)}\n")
+    
+    log_message(f"Sample recommendations saved to {sample_recs_path}")
+except Exception as e:
+    log_message(f"Error generating sample recommendations: {str(e)}")
+
+# Generate comprehensive report
+try:
+    report_path = f"{output_dir}/evaluation_report_{timestamp}.md"
+    with open(report_path, 'w') as f:
+        f.write(f"# User-Based Collaborative Filtering Evaluation Report\n\n")
+        f.write(f"**Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+        
+        f.write("## Dataset Statistics\n\n")
+        f.write(f"- Total interactions: {len(evaluator.interactions_df)}\n")
+        f.write(f"- Number of users: {evaluator.interactions_df['user'].nunique()}\n")
+        f.write(f"- Number of unique items: {len(evaluator.all_items)}\n")
+        f.write(f"- Training set size: {len(evaluator.train_df)}\n")
+        f.write(f"- Test set size: {len(evaluator.test_df)}\n\n")
+        
+        f.write("## Parameter Tuning Results\n\n")
+        f.write("### Best Parameters\n\n")
+        f.write(f"- k_neighbors: {int(best_params['k_neighbors'])}\n")
+        f.write(f"- min_sim: {best_params['min_sim']}\n")
+        f.write(f"- min_overlap: {int(best_params['min_overlap'])}\n\n")
+        
+        f.write("### Best Performance Metrics\n\n")
+        f.write(f"- Precision: {best_params['precision']:.4f}\n")
+        f.write(f"- Recall: {best_params['recall']:.4f}\n")
+        f.write(f"- NDCG: {best_params['ndcg']:.4f}\n")
+        f.write(f"- Hit Rate: {best_params['hit_rate']:.4f}\n")
+        f.write(f"- MRR: {best_params['mrr']:.4f}\n")
+        f.write(f"- Coverage: {best_params['coverage']:.4f}\n")
+        f.write(f"- Diversity: {best_params['diversity']:.4f}\n")
+        f.write(f"- Novelty: {best_params['novelty']:.4f}\n\n")
+        
+        f.write("## Epsilon-Greedy Evaluation\n\n")
+        f.write("### Best Epsilon Value\n\n")
+        f.write(f"- For diversity: {best_epsilon['epsilon']}\n")
+        f.write(f"- For precision: {best_epsilon_precision['epsilon']}\n\n")
+        
+        f.write("### Epsilon Impact Summary\n\n")
+        f.write("| Epsilon | Precision | Recall | Diversity | Novelty |\n")
+        f.write("|---------|-----------|--------|-----------|--------|\n")
+        for _, row in epsilon_results.iterrows():
+            f.write(f"| {row['epsilon']:.1f} | {row['precision']:.4f} | {row['recall']:.4f} | {row['diversity']:.4f} | {row['novelty']:.4f} |\n")
+        
+        f.write("\n## Conclusion\n\n")
+        f.write("The evaluation shows that the User-Based Collaborative Filtering approach performs best with ")
+        f.write(f"k={int(best_params['k_neighbors'])}, min_sim={best_params['min_sim']}, and min_overlap={int(best_params['min_overlap'])}. ")
+        
+        if best_epsilon['epsilon'] > 0:
+            f.write(f"Adding randomness with epsilon={best_epsilon['epsilon']} improves recommendation diversity ")
+            f.write(f"from {epsilon_results.iloc[0]['diversity']:.4f} to {best_epsilon['diversity']:.4f}, ")
+            
+            precision_diff = best_epsilon['precision'] - epsilon_results.iloc[0]['precision']
+            if precision_diff >= 0:
+                f.write(f"while also maintaining good precision (change of {precision_diff:.4f}).")
+            else:
+                f.write(f"with a small precision trade-off of {abs(precision_diff):.4f}.")
+        else:
+            f.write(f"Adding randomness with epsilon-greedy did not improve the recommendation quality.")
+            
+    log_message(f"Comprehensive evaluation report saved to {report_path}")
+except Exception as e:
+    log_message(f"Error generating evaluation report: {str(e)}")
+
+# Close database connection
+db_client.close()
+log_message(f"\n=== Evaluation Completed at {datetime.now().strftime('%Y%m%d_%H%M%S')} ===")
