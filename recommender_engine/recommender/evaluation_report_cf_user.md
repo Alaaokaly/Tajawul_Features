@@ -15,6 +15,7 @@
 ### Best Parameters
 
 - k_neighbors: 10
+  
 ![k_neighbors_impact_20250425_173746](https://github.com/user-attachments/assets/917d6fb7-6168-4215-b6bd-df2971972b5b)
 
 
@@ -50,7 +51,9 @@
 | 0.4 | 0.0058 | 0.0658 | 0.4469 | 26.6208 |
 | 0.5 | 0.0058 | 0.0659 | 0.5384 | 26.5037 |
 
-![alt text](../eval_cf_user/epsilon_greedy_vis_20250425_173746.png)
+
+![epsilon_greedy_vis_20250425_173746](https://github.com/user-attachments/assets/001cd4f6-f20f-4119-909d-0a5e45669e33)
+
 
 ## Conclusion
 
