@@ -15,7 +15,13 @@
 ### Best Parameters
 
 - k_neighbors: 10
+
+  ![k_neighbors_impact_20250425_185915](https://github.com/user-attachments/assets/4f37c664-7c1b-4ad6-936f-7149324de8b7)
+
 - min_sim: 0.001
+
+  ![min_sim_impact_20250425_185915](https://github.com/user-attachments/assets/dbbde8ae-c563-45a9-afb9-e11dec95b149)
+
 - min_overlap: 2
 
 ### Best Performance Metrics
@@ -50,3 +56,5 @@
 ## Conclusion
 
 The evaluation shows that the Item-Based Collaborative Filtering approach performs best with k=10, min_sim=0.001, and min_overlap=2. Adding randomness with epsilon=0.5 improves recommendation diversity from 0.6446 to 0.7874, with a small precision trade-off of 0.0007.
+
+![parameter_tuning_vis_20250425_185915](https://github.com/user-attachments/assets/f64b42d1-bfc4-4677-b970-b7db41c90ef5)
