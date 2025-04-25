@@ -15,7 +15,9 @@
 ### Best Parameters
 
 - k_neighbors: 10
-![alt text](../eval_cf_user/k_neighbors_impact_20250425_173746.png)
+![k_neighbors_impact_20250425_173746](https://github.com/user-attachments/assets/917d6fb7-6168-4215-b6bd-df2971972b5b)
+
+
 - min_sim: 0.001
 - min_overlap: 1
 
