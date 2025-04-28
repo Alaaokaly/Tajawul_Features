@@ -188,36 +188,50 @@ class ContentBasedFetcher:
 
     def fetch_existing_user_data(self, user_id=None, limit=15):
         query = """
-        MATCH (u:User {id: $user_id})
+            MATCH (u:User {id: $user_id})-[:VISITED]->(d1:Destination)
+            MATCH (d1)-[:HAD_STYLE]->(preferredTag:Tag)
 
-        OPTIONAL MATCH (u)-[:VISITED]->(d:Destination)
-        OPTIONAL MATCH (d)-[:HAD_STYLE]->(ds:Tag)
-        OPTIONAL MATCH (d)-[:HAD_TYPE]->(dt:DestinationType)
-        
-        WITH d, 
-        COLLECT(DISTINCT ds.name) AS tags, 
-        COLLECT(DISTINCT dt.name) AS destinationType
-                
-        RETURN d.name AS name,
-               d.description AS description,
-               tags AS tags,
-               destinationType AS destinationType,
-              'Destination' AS type
-        
-        UNION
-        
-        MATCH (u:User {id: $user_id})
-        OPTIONAL MATCH (u)-[:ATTEND]->(e:Event)
-        OPTIONAL MATCH (e)-[:HAD_STYLE]->(es:Tag)
-        
-        WITH e, 
-        COLLECT(DISTINCT es.name) AS tags
-        
-        RETURN e.name AS name,
-               e.description AS description,
-               tags AS tags,
-               NULL AS destinationType,
-               'Event' AS type
+            WITH u, COLLECT(DISTINCT preferredTag.name) AS userPreferredTags
+
+            MATCH (d2:Destination)
+            WHERE NOT (u)-[:VISITED]->(d2) AND NOT (u)-[:FOLLOWED]->(d2)
+            OPTIONAL MATCH (d2)-[:HAD_STYLE]->(tag:Tag)
+            OPTIONAL MATCH (d2)-[:HAD_TYPE]->(dt:DestinationType)
+
+            WITH d2, 
+                COLLECT(DISTINCT tag.name) AS tags, 
+                COLLECT(DISTINCT dt.name) AS destinationType, 
+                userPreferredTags
+            WHERE size([tag IN tags WHERE tag IN userPreferredTags]) > 0
+
+            RETURN d2.name AS name,
+                d2.description AS description,
+                tags AS tags,
+                destinationType AS destinationType,
+                'Destination' AS type
+
+            UNION ALL
+
+            MATCH (u:User {id: $user_id})-[:VISITED]->(d1:Destination)
+            MATCH (d1)-[:HAD_STYLE]->(preferredTag:Tag)
+
+            WITH u, COLLECT(DISTINCT preferredTag.name) AS userPreferredTags
+
+            MATCH (e2:Event)
+            WHERE NOT (u)-[:ATTEND]->(e2)
+            OPTIONAL MATCH (e2)-[:HAD_STYLE]->(etag:Tag)
+
+            WITH e2, 
+                COLLECT(DISTINCT etag.name) AS tags, 
+                userPreferredTags
+            WHERE size([tag IN tags WHERE tag IN userPreferredTags]) > 0
+
+            RETURN e2.name AS name,
+                e2.description AS description,
+                tags AS tags,
+                NULL AS destinationType,
+                'Event' AS type
+
         LIMIT $limit
         """
         params = {
