@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from neo4j_data_fetcher import Neo4jClient, ContentBasedFetcher
-from typing import Optional, List, Union
+from typing import Optional
 
 
 class ContentBasedRecommender:
@@ -10,23 +10,24 @@ class ContentBasedRecommender:
                  content_fetcher: ContentBasedFetcher,  # Inject the fetcher
                  new_user,
                  user_id,
+                 item_type: Optional[str] = None,
                  limit: Optional[int] = None):
         self.new_user = new_user
         self.user_id = user_id
         self.limit = limit
+        self.item_type  = item_type
         self.content_fetcher = content_fetcher
         self.similarity_matrix = None
         self.results = []
         self.user_styles = []
-        self.user_item_matrix = None
 
         if self.new_user:
             self.results, self.user_styles = self.content_fetcher.fetch_new_user_data(
-                new_user=self.new_user, user_id=self.user_id, limit=self.limit
+                new_user=self.new_user, user_id=self.user_id
             )
         else:
             self.results, self.user_styles = self.content_fetcher.fetch_existing_user_data(
-                user_id=self.user_id, limit=self.limit
+                user_id=self.user_id 
             )
 
         if self.results:
@@ -40,8 +41,6 @@ class ContentBasedRecommender:
         df_results['combined_text'] = df_results['description'].fillna('') + " " + df_results['tags'].apply(
             lambda tags: " ".join(tags) if isinstance(tags, list) else ""
         )
-        self.user_item_matrix = df_results.pivot_table(index="user", columns=["item", "type"], values="avg", fill_value=0, observed=True)
-
         # Compute cosine similarity
         vectorizer = TfidfVectorizer(stop_words='english')
         results_matrix = vectorizer.fit_transform(
@@ -131,52 +130,25 @@ class ContentBasedRecommender:
 
         return selected
 
-    def recommend(self, top_n=10, use_mmr=True, type=None, lambda_=0.5):
+    def recommend(self, top_n=10, use_mmr=True, lambda_=0.5, item_type =None):
         if not self.results:
-            return pd.DataFrame(columns=['name', 'description', 'tags', 'destinationType', 'type', 'score'])
+            return pd.DataFrame(columns=['name', 'description', 'tags', 'destinationType', 'item_type', 'score'])
         
-        # First filter by type if specified
-        filtered_results = self.results
-        if type is not None:
-            # Convert to list if it's a single string
-            if isinstance(type, str):
-                type = [type]
-            
-            # Case-insensitive filtering
-            filtered_results = [
-                item for item in self.results 
-                if item.get('type', '').lower() in [t.lower() for t in type]
-            ]
-            
-            # Check if we have any results after filtering
-            if not filtered_results:
-                print(f"No items found matching specified type(s): {type}")
-                return pd.DataFrame(columns=['name', 'description', 'tags', 'destinationType', 'type', 'score'])
+        if item_type :
+            filtered_results = [item for item in self.results if item.get('item_type') == item_type ]
+        else:
+            filtered_results = self.results
+        item_type  = item_type  or self.item_type 
         
-        # Store original results
-        original_results = self.results
-        
-        # Temporarily replace self.results with filtered results for reranking
-        self.results = filtered_results
-        
-        # Apply reranking on filtered results
         if use_mmr:
+            self.results = filtered_results
             ranked_results = self.MMR_rerank(top_n, lambda_=lambda_)
         else:
+            self.results = filtered_results
             ranked_results = self.greedy_tag_rerank(top_n, lambda_=lambda_)
-        
-        # Restore original results
-        self.results = original_results
-        
-        # Create DataFrame from ranked results
+
         df_ranked = pd.DataFrame(ranked_results)
-        
-        # Ensure all needed columns exist
-        for col in ['name', 'description', 'tags', 'destinationType', 'type', 'score']:
-            if col not in df_ranked.columns:
-                df_ranked[col] = None
-                
-        return df_ranked[['name', 'description', 'tags', 'destinationType', 'type', 'score']]
+        return df_ranked[['name', 'description', 'tags', 'destinationType', 'item_type', 'score']]
 
 
 if __name__ == '__main__':
@@ -185,28 +157,14 @@ if __name__ == '__main__':
     cbf = ContentBasedRecommender(
         content_fetcher,
         new_user=True,
-        user_id='65ab857a-6ff4-493f-aa8d-ddde6463cc20',
-        limit=100
+        user_id="2270bcf5-4e6c-479a-a882-cea74efc7e2e",
     )
-    
-    # Print all available types for debugging
-    if cbf.results:
-        types = set(item.get('type', '') for item in cbf.results)
-        print(f"Available types in the dataset: {types}")
-    
-    # Get recommendations filtered by destination type
-    destination_recommendations = cbf.recommend(top_n=15, use_mmr=True, type='Destination')
-    print("\nDESTINATION RECOMMENDATIONS:")
-    print(destination_recommendations[['name', 'type', 'score']])
-    
-    # Get recommendations filtered by event type
-    event_recommendations = cbf.recommend(top_n=15, use_mmr=True, type='Event')
-    print("\nEVENT RECOMMENDATIONS:")
-    print(event_recommendations[['name', 'type', 'score']])
-    
-    # Get all recommendations (without type filtering)
-    all_recommendations = cbf.recommend(top_n=15, use_mmr=True)
     print("\nALL RECOMMENDATIONS:")
-    print(all_recommendations[['name', 'type', 'score']])
+    All_recommendations = cbf.recommend(top_n=100, use_mmr=True)
+    print(All_recommendations[['name', 'item_type', 'score']])
+    
+    print("\nEVENT RECOMMENDATIONS:")
+    Destination_recommendations = cbf.recommend(top_n=100, use_mmr=True, item_type ="Event")
+    print(Destination_recommendations[['name', 'item_type', 'score']])
     
     db_client.close()
