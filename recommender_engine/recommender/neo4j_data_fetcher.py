@@ -120,27 +120,18 @@ class InteractionsFetcher:
     
     
 
-class ContentBasedFetcher:
-    def __init__(self, db: Neo4jClient):
-        self.db = db
-
-    def get_user_styles(self, user_id):
-        query = """MATCH (u:User {id: $user_id})-[:HAD_STYLE]->(s:Tag)
-        RETURN COLLECT(s.name) AS style_name"""
-
-        records = self.db.execute(query, {"user_id": user_id})
-        return [record["style_name"] for record in records]  # styles
-
-    def fetch_new_user_data(self, new_user=True, user_id=None, limit=15):
+def fetch_new_user_data(self, new_user=True, user_id=None):
         query = """
             MATCH (u:User {id: $user_id})
             OPTIONAL MATCH (u)-[:PREFERED_STYLE]->(s) 
-            WITH u, s.name AS style
+            WITH u, COLLECT(s.name) AS preferred_styles
 
             MATCH (d:Destination)
             OPTIONAL MATCH (d)-[:HAD_STYLE]->(ds:Tag)
             OPTIONAL MATCH (d)-[:HAD_TYPE]->(dt:DestinationType)
-            WHERE (style IS NULL OR (d)-[:HAS_STYLE]->(:Tag {name: style}))
+            
+            WITH d, ds, dt, preferred_styles
+            WHERE size([style IN preferred_styles WHERE style = ds.name]) > 0 OR size(preferred_styles) = 0
 
             WITH d, 
                 COLLECT(DISTINCT ds.name) AS tags, 
@@ -150,8 +141,8 @@ class ContentBasedFetcher:
                    d.description AS description,
                    tags,
                    destinationType AS destinationType,
-                   'Destination' AS type
-
+                   'Destination' AS item_type 
+            
             UNION
 
             MATCH (u:User {id: $user_id})
@@ -161,7 +152,6 @@ class ContentBasedFetcher:
             MATCH (e:Event)
             MATCH (e)-[:HAD_STYLE]->(es:Tag)
             WHERE (style IS NULL OR (e)-[:HAD_STYLE]->(:Tag {name: style}))
-
             WITH e, 
                 COLLECT(DISTINCT es.name) AS tags
 
@@ -169,24 +159,22 @@ class ContentBasedFetcher:
                    e.description AS description,
                    tags,
                    NULL AS destinationType,
-                   'Event' AS type
-            LIMIT $limit
+                   'Event' AS item_type 
                 """
         params = {
             "user_id": user_id,
-            "limit": limit
         }
         records = self.db.execute(query, params)
         results = [{"name": record["name"],
                     "description": record["description"],
                     "tags": record["tags"],
                     "destinationType": record["destinationType"],
-                    "type": record["type"]} for record in records]
+                    "item_type": record["item_type"]} for record in records]
 
         styles = self.get_user_styles(user_id)
         return results, styles
 
-    def fetch_existing_user_data(self, user_id=None, limit=15):
+    def fetch_existing_user_data(self,new_user = False, user_id=None):
         query = """
             MATCH (u:User {id: $user_id})-[:VISITED]->(d1:Destination)
             MATCH (d1)-[:HAD_STYLE]->(preferredTag:Tag)
@@ -208,7 +196,7 @@ class ContentBasedFetcher:
                 d2.description AS description,
                 tags AS tags,
                 destinationType AS destinationType,
-                'Destination' AS type
+                'Destination' AS item_type
 
             UNION ALL
 
@@ -230,22 +218,19 @@ class ContentBasedFetcher:
                 e2.description AS description,
                 tags AS tags,
                 NULL AS destinationType,
-                'Event' AS type
+                'Event' AS item_type
 
-        LIMIT $limit
         """
         params = {
             "user_id": user_id,
-            "limit": limit if limit is not None else 10
         }
         records = self.db.execute(query, params)
 
-        records = self.db.execute(query, params)
         results = [{"name": record["name"],
                     "description": record["description"],
                     "tags": record["tags"],
                     "destinationType": record["destinationType"],
-                    "type": record["type"]} for record in records]
+                    "item_type": record["item_type"]} for record in records]
 
         styles = self.get_user_styles(user_id)
         return results, styles
