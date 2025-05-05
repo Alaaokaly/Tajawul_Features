@@ -15,19 +15,19 @@ class ContentBasedRecommender:
         self.new_user = new_user
         self.user_id = user_id
         self.limit = limit
-        self.item_type  = item_type
+        self.item_type = item_type
         self.content_fetcher = content_fetcher
         self.similarity_matrix = None
         self.results = []
         self.user_styles = []
 
         if self.new_user:
-            self.results, self.user_styles = self.content_fetcher.fetch_new_user_data(
+            self.results = self.content_fetcher.fetch_new_user_data(
                 new_user=self.new_user, user_id=self.user_id
             )
         else:
-            self.results, self.user_styles = self.content_fetcher.fetch_existing_user_data(
-                user_id=self.user_id 
+            self.results = self.content_fetcher.fetch_existing_user_data(
+                user_id=self.user_id
             )
 
         if self.results:
@@ -70,9 +70,9 @@ class ContentBasedRecommender:
             return []
 
         # Create a map from name to full item and index
-        name_to_index = {item['name']: idx for idx,
+        name_to_index = {item['item']: idx for idx,
                          item in enumerate(self.results)}
-        name_to_item = {item['name']: item for item in self.results}
+        name_to_item = {item['item']: item for item in self.results}
         candidates = list(name_to_index.keys())
 
         selected = []
@@ -102,7 +102,7 @@ class ContentBasedRecommender:
             candidates.remove(best_candidate)
 
         # Return re-ranked results in the MMR-selected order
-        reranked_results = [name_to_item[name] for name in selected]
+        reranked_results = [name_to_item[item] for item in selected]
         return reranked_results
 
     def greedy_tag_rerank(self, top_n, lambda_=0.7):
@@ -130,25 +130,32 @@ class ContentBasedRecommender:
 
         return selected
 
-    def recommend(self, top_n=10, use_mmr=True, lambda_=0.5, item_type =None):
+    def recommend(self, top_n=10, use_mmr=True, lambda_=0.5, item_type=None):
         if not self.results:
-            return pd.DataFrame(columns=['name', 'description', 'tags', 'destinationType', 'item_type', 'score'])
-        
-        if item_type :
-            filtered_results = [item for item in self.results if item.get('item_type') == item_type ]
+            return pd.DataFrame(columns=['user', 'item', 'item_type', 'score'])
+
+        if item_type:
+            filtered_results = [
+                item for item in self.results if item.get('item_type') == item_type]
         else:
             filtered_results = self.results
-        item_type  = item_type  or self.item_type 
-        
+        item_type = item_type or self.item_type
+
         if use_mmr:
             self.results = filtered_results
             ranked_results = self.MMR_rerank(top_n, lambda_=lambda_)
         else:
             self.results = filtered_results
             ranked_results = self.greedy_tag_rerank(top_n, lambda_=lambda_)
+            for r in ranked_results:
+                r['user'] = r.get('user', self.user_id)
+                r['item'] = r.get('item', r.get(
+                    'id', r.get('name')))  # fallback
+                r['item_type'] = r.get('item_type', item_type)
+                r['score'] = r.get('score', 0.0)
 
         df_ranked = pd.DataFrame(ranked_results)
-        return df_ranked[['name', 'description', 'tags', 'destinationType', 'item_type', 'score']]
+        return df_ranked[['user', 'item', 'item_type', 'score']]
 
 
 if __name__ == '__main__':
@@ -156,15 +163,10 @@ if __name__ == '__main__':
     content_fetcher = ContentBasedFetcher(db_client)
     cbf = ContentBasedRecommender(
         content_fetcher,
-        new_user=True,
-        user_id="2270bcf5-4e6c-479a-a882-cea74efc7e2e",
+        new_user=False,
+        user_id="3738e035-45a5-4b8b-86a2-32ff64a76f03",
     )
     print("\nALL RECOMMENDATIONS:")
-    All_recommendations = cbf.recommend(top_n=100, use_mmr=True)
-    print(All_recommendations[['name', 'item_type', 'score']])
-    
-    print("\nEVENT RECOMMENDATIONS:")
-    Destination_recommendations = cbf.recommend(top_n=100, use_mmr=True, item_type ="Event")
-    print(Destination_recommendations[['name', 'item_type', 'score']])
-    
+    All_recommendations = cbf.recommend(top_n=200, use_mmr=True)
+    print(All_recommendations)
     db_client.close()
