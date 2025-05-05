@@ -27,6 +27,8 @@
 - Best model for diversity: **Hybrid** (0.7984)
 - Best model for novelty: **User-based CF** (22.6054)
 
+![model_comparison_20250425_202127](https://github.com/user-attachments/assets/b97dae73-735a-4eda-8f1d-4ea19de66b59)
+
 ## Epsilon-Greedy Exploration Impact
 
 | Epsilon | Precision | Recall | Diversity | Novelty |
@@ -45,3 +47,4 @@ The hybrid recommender outperforms both collaborative filtering approaches in te
 Adding randomness with epsilon=0.5 improves recommendation diversity from 0.7984 to 0.8885, with a small precision trade-off of 0.0009.
 
 Overall, the evaluation shows that... the hybrid approach successfully combines the strengths of content-based and collaborative filtering methods, providing superior recommendations compared to either method alone.
+Overall, the evaluation shows that... while the hybrid approach shows promise in combining content-based and collaborative filtering, further tuning is needed to fully leverage the strengths of both methods.
