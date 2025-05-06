@@ -22,11 +22,11 @@ class ContentBasedRecommender:
         self.user_styles = []
 
         if self.new_user:
-            self.results = self.content_fetcher.fetch_new_user_data(
+            self.results,self.user_styles = self.content_fetcher.fetch_new_user_data(
                 new_user=self.new_user, user_id=self.user_id
             )
         else:
-            self.results = self.content_fetcher.fetch_existing_user_data(
+            self.results,self.user_styles = self.content_fetcher.fetch_existing_user_data(
                 user_id=self.user_id
             )
 
