@@ -1,0 +1,172 @@
+2025-05-12 22:46:04,899 - INFO - Starting recommendation service with parameters: Namespace(rec_limit=15, retention=30, user='65ab857a-6ff4-493f-aa8d-ddde6463cc20', dry_run=False, use_epsilon_greedy=True, epsilon=0.3, periodic=False)
+2025-05-12 22:46:05,639 - INFO - Initializing recommendation models...
+2025-05-12 22:46:05,640 - INFO - Fitting user-based CF model...
+2025-05-12 22:46:10,017 - INFO - Fitting item-based CF model...
+2025-05-12 22:46:14,393 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:14,466 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:14,528 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:14,599 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:14,664 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:14,735 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:14,793 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:14,857 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:14,922 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:14,990 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:15,055 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:15,121 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:15,187 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:15,252 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:15,319 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:15,719 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:15,811 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:15,877 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:15,943 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:16,003 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:16,067 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:16,125 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:16,189 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:16,255 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:16,318 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:16,386 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:16,449 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:16,509 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:16,575 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:16,639 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:16,878 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:16,949 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:17,009 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:17,081 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:17,146 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:17,205 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:17,270 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:17,335 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:17,394 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:17,463 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:17,527 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:17,591 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:17,656 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:17,871 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:17,929 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:17,993 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:18,096 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:18,156 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:18,221 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:46:18,224 - WARNING - No user recommendations generated for user 65ab857a-6ff4-493f-aa8d-ddde6463cc20
+2025-05-12 22:46:18,224 - INFO - Starting recommendation service  In DB with parameters: Namespace(rec_limit=15, retention=30, user='65ab857a-6ff4-493f-aa8d-ddde6463cc20', dry_run=False, use_epsilon_greedy=True, epsilon=0.3, periodic=False)
+2025-05-12 22:48:46,935 - INFO - Starting recommendation service with parameters: Namespace(rec_limit=15, retention=30, user='65ab857a-6ff4-493f-aa8d-ddde6463cc20', dry_run=True, use_epsilon_greedy=True, epsilon=0.3, periodic=False)
+2025-05-12 22:48:47,788 - INFO - Initializing recommendation models...
+2025-05-12 22:48:47,789 - INFO - Fitting user-based CF model...
+2025-05-12 22:48:52,106 - INFO - Fitting item-based CF model...
+2025-05-12 22:48:56,182 - INFO - Dry-Run trial with user 65ab857a-6ff4-493f-aa8d-ddde6463cc20
+2025-05-12 22:48:56,358 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 05bbaad2-2ccf-4aec-9685-35d779d20d79 that is a Destination
+2025-05-12 22:48:56,358 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,358 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id c36c2166-62cb-47a7-8ffe-cac042c9cf85 that is a Destination
+2025-05-12 22:48:56,358 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,358 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id d5139900-253f-4b2d-ac52-6c61b5a24287 that is a Destination
+2025-05-12 22:48:56,358 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,358 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 7d187998-f832-46c1-86dc-77d35d032616 that is a Destination
+2025-05-12 22:48:56,358 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,358 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id a33207c0-2878-4973-bcf6-2f16309156d3 that is a Destination
+2025-05-12 22:48:56,358 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,358 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 849f3436-9e0f-4cc0-b687-2f8195344403 that is a Destination
+2025-05-12 22:48:56,358 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,358 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 1292a86d-035f-40c8-9eb6-5360f3ce548d that is a Destination
+2025-05-12 22:48:56,358 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,359 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 355f0e39-40e3-46b0-bd21-42f4b87923f8 that is a Destination
+2025-05-12 22:48:56,359 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,359 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 355f0e39-40e3-46b0-bd21-42f4b87923f8 that is a Unknown
+2025-05-12 22:48:56,359 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,359 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id f610bfb9-44ba-45dd-a50f-f55305fa31d0 that is a Destination
+2025-05-12 22:48:56,359 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,359 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id f672bf4a-c0eb-409e-a1b0-4b3c7abf5ca0 that is a Destination
+2025-05-12 22:48:56,359 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,359 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id b1fc5ac9-2ae6-49f8-bc77-681073a6f8a0 that is a Destination
+2025-05-12 22:48:56,359 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,359 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 849f3436-9e0f-4cc0-b687-2f8195344403 that is a Unknown
+2025-05-12 22:48:56,359 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,359 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 63c7402d-d984-4d40-bd4b-5d027d863703 that is a Destination
+2025-05-12 22:48:56,359 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,359 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 82aa1529-ff56-48d5-b9bb-ef2c5628c106 that is a Unknown
+2025-05-12 22:48:56,359 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,534 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id ce61301d-b925-40d7-8ac3-3e5dd5ecdb98 that is a Event
+2025-05-12 22:48:56,534 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,535 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 7ee3a311-6266-4deb-85ca-73b950a877cd that is a Event
+2025-05-12 22:48:56,535 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,535 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 355f0e39-40e3-46b0-bd21-42f4b87923f8 that is a Unknown
+2025-05-12 22:48:56,535 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,535 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 0b39ee4b-46cd-4c71-8ce1-d24604cd44a9 that is a Event
+2025-05-12 22:48:56,535 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,535 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 1bec9c9f-c6df-4684-989a-87ac65bb5bb9 that is a Event
+2025-05-12 22:48:56,535 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,535 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 82aa1529-ff56-48d5-b9bb-ef2c5628c106 that is a Unknown
+2025-05-12 22:48:56,535 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,535 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 849f3436-9e0f-4cc0-b687-2f8195344403 that is a Unknown
+2025-05-12 22:48:56,535 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,535 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 481f380f-8856-46e9-b018-48af7f84c92c that is a Event
+2025-05-12 22:48:56,535 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,535 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 6212a988-6e03-4424-afe2-6065116d9208 that is a Event
+2025-05-12 22:48:56,535 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,535 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 94114066-d6b0-4bb6-ade9-99cb49a36bde that is a Event
+2025-05-12 22:48:56,535 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,535 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 52db5651-603e-4ca7-a08f-28fa9530a3e9 that is a Event
+2025-05-12 22:48:56,536 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,536 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id c313ea83-fd10-43c9-a147-925357b013d6 that is a Event
+2025-05-12 22:48:56,536 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,536 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 29d09c8b-4814-48a7-9886-a6b5e152996f that is a Event
+2025-05-12 22:48:56,536 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,536 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 890fa5f5-a831-4154-8ce7-3123442ab080 that is a Event
+2025-05-12 22:48:56,536 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,536 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id aba8f7e8-ff0a-44db-883e-b15086c6b8a0 that is a Event
+2025-05-12 22:48:56,536 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,694 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 849f3436-9e0f-4cc0-b687-2f8195344403 that is a Unknown
+2025-05-12 22:48:56,694 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,694 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 7f283076-3378-4bf1-a556-ce74099d4e15 that is a Trip
+2025-05-12 22:48:56,694 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,694 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id e228007d-9609-4b61-bb4a-92cd5efa710a that is a Trip
+2025-05-12 22:48:56,694 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,694 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 05cfceb2-9e2a-43c5-9d0b-20fc25d1c96f that is a Trip
+2025-05-12 22:48:56,694 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,694 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 355f0e39-40e3-46b0-bd21-42f4b87923f8 that is a Unknown
+2025-05-12 22:48:56,694 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,694 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 728e6824-d306-4e55-8fa6-67b2619ebad7 that is a Trip
+2025-05-12 22:48:56,695 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,695 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 9989e4e2-1dc6-46a4-9b06-080f6ea07408 that is a Trip
+2025-05-12 22:48:56,695 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,695 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 82aa1529-ff56-48d5-b9bb-ef2c5628c106 that is a Unknown
+2025-05-12 22:48:56,695 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,695 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id e228007d-9609-4b61-bb4a-92cd5efa710a that is a Trip
+2025-05-12 22:48:56,695 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,695 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 7f283076-3378-4bf1-a556-ce74099d4e15 that is a Trip
+2025-05-12 22:48:56,695 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,695 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 05cfceb2-9e2a-43c5-9d0b-20fc25d1c96f that is a Trip
+2025-05-12 22:48:56,695 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,695 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 9989e4e2-1dc6-46a4-9b06-080f6ea07408 that is a Trip
+2025-05-12 22:48:56,695 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,695 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id a9016c77-202f-42a9-b75c-75c1e0aede88 that is a Unknown
+2025-05-12 22:48:56,695 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,865 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 2d05d749-b276-4d2a-b437-35d91d699ad3 that is a Post
+2025-05-12 22:48:56,865 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,865 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 2d05d749-b276-4d2a-b437-35d91d699ad3 that is a Post
+2025-05-12 22:48:56,865 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,865 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 849f3436-9e0f-4cc0-b687-2f8195344403 that is a Unknown
+2025-05-12 22:48:56,865 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,865 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id a9016c77-202f-42a9-b75c-75c1e0aede88 that is a Unknown
+2025-05-12 22:48:56,865 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,865 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 355f0e39-40e3-46b0-bd21-42f4b87923f8 that is a Unknown
+2025-05-12 22:48:56,865 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,866 - INFO - DRY RUN : creating recommendations from 65ab857a-6ff4-493f-aa8d-ddde6463cc20 to item id 82aa1529-ff56-48d5-b9bb-ef2c5628c106 that is a Unknown
+2025-05-12 22:48:56,866 - INFO - Creating Item Recommendations For 65ab857a-6ff4-493f-aa8d-ddde6463cc20 
+2025-05-12 22:48:56,866 - WARNING - No user recommendations generated for user 65ab857a-6ff4-493f-aa8d-ddde6463cc20
+2025-05-12 22:50:24,798 - INFO - Starting recommendation service with parameters: Namespace(rec_limit=10, retention=30, user=None, dry_run=False, use_epsilon_greedy=True, epsilon=0.2, periodic=False)
+2025-05-12 22:50:25,729 - INFO - Initializing recommendation models...
+2025-05-12 22:50:25,729 - INFO - Fitting user-based CF model...
+2025-05-12 22:50:30,497 - INFO - Fitting item-based CF model...
+2025-05-12 22:50:35,205 - WARNING - No Destination recommendations generated for user None
+2025-05-12 22:50:35,373 - WARNING - No Event recommendations generated for user None
+2025-05-12 22:50:35,656 - WARNING - No Trip recommendations generated for user None
+2025-05-12 22:50:35,827 - WARNING - No Post recommendations generated for user None
+2025-05-12 22:56:02,731 - INFO - Starting recommendation service with parameters: Namespace(rec_limit=10, retention=30, user=None, dry_run=True, use_epsilon_greedy=True, epsilon=0.2, periodic=True)
+2025-05-12 22:56:03,656 - INFO - Initializing recommendation models...
+2025-05-12 22:56:03,657 - INFO - Fitting user-based CF model...
+2025-05-12 22:56:10,285 - INFO - Fitting item-based CF model...
+2025-05-12 22:56:15,857 - INFO - Dry-Run trial with user None

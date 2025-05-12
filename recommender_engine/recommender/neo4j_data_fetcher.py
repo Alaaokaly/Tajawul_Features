@@ -1,10 +1,9 @@
+from typing import Optional
+from neo4j import GraphDatabase, Driver
 import os
 import pandas as pd
 from dotenv import load_dotenv
 load_dotenv()
-from neo4j import GraphDatabase, Driver, Session, Record, Result
-from typing import Optional
-import random 
 
 
 class Neo4jClient:
@@ -16,7 +15,8 @@ class Neo4jClient:
         self.NEO4J_USERNAME = NEO4J_USERNAME
 
         if not NEO4J_URI or not NEO4J_USERNAME or not NEO4J_PASSWORD:
-            raise ValueError("Neo4j credentials are missing! Check your .env file.")
+            raise ValueError(
+                "Neo4j credentials are missing! Check your .env file.")
         self._driver: Optional[Driver] = None
         try:
             self._driver = GraphDatabase.driver(
@@ -66,6 +66,9 @@ class InteractionsFetcher:
               UNION ALL
               MATCH (u:User)-[r]->(e:Event)
               RETURN u.id AS user, e.id AS item, 'Event' AS type, type(r) AS interaction, e.name AS name
+              UNION ALL
+              MATCH (u:User)-[r]->(p:Post)
+              RETURN u.id AS user, p.id AS item, 'Post' AS type, type(r) AS interaction, p.name AS name
               """
 
         # Execute the query and fetch records
@@ -114,44 +117,83 @@ class InteractionsFetcher:
         
         return (x - x_mean) / range_value
     
-
-
-    
-    
-    
-
 class ContentBasedFetcher:
     def __init__(self, db: Neo4jClient):
         self.db = db
 
     def get_user_styles(self, user_id):
-        query = """MATCH (u:User {id: $user_id})-[:HAD_STYLE]->(s:Tag)
+        query = """MATCH (u:User {id: $user_id})-[:PREFERED_STYLE]->(s:Tag)
         RETURN COLLECT(s.name) AS style_name"""
 
         records = self.db.execute(query, {"user_id": user_id})
         return [record["style_name"] for record in records]  # styles
 
-    def fetch_new_user_data(self, new_user=True, user_id=None, limit=15):
+    def get_user_interactions(self, user_id):
+        query = """
+                MATCH (u:User {id: $user_id})-[r]->(d:Destination)
+                WHERE type(r) IN ['VISITED', 'FOLLOWED', 'FAVORITE', 'WISHED','CREATED']
+                with u,d
+                MATCH (d)-[:HAD_STYLE]->(t:Tag)
+                WITH u, d, collect(DISTINCT t.name) AS tags
+                RETURN u.id as user,
+                       d.id as item,
+                       "Destination" as item_type,
+                       tags,
+                       d.description as description,
+                       1 as score
+                        
+               Union
+
+                MATCH (u:User {id: $user_id})-[r]->(e:Event)
+                WHERE type(r) IN ['ATTEND', 'FOLLOWED', 'FAVORITE', 'WISHED','CREATED']
+                with u,e
+                Match (e) -[r]->(t:Tag)
+                With u,e, collect(DISTINCT t.name) As tags
+                Return  u.id as user,
+                        e.id as item,
+                        "Event" as item_type,
+                        tags,
+                        e.description as description,
+                        1 as score
+                
+        
+        """
+        params = {"user_id": user_id}
+        records = self.db.execute(query, params)
+        results = [{'user': record['user'],
+                    'item': record['item'],
+                    'item_type': record['item_type'],
+                    "description": record["description"],
+                    "tags": record["tags"],
+                    "score": record["score"]
+                    } for record in records]
+        return results
+
+    def fetch_new_user_data(self, new_user=True, user_id=None):
         query = """
             MATCH (u:User {id: $user_id})
             OPTIONAL MATCH (u)-[:PREFERED_STYLE]->(s) 
-            WITH u, s.name AS style
+            WITH u, COLLECT(s.name) AS preferred_styles
 
             MATCH (d:Destination)
             OPTIONAL MATCH (d)-[:HAD_STYLE]->(ds:Tag)
             OPTIONAL MATCH (d)-[:HAD_TYPE]->(dt:DestinationType)
-            WHERE (style IS NULL OR (d)-[:HAS_STYLE]->(:Tag {name: style}))
+            
+            WITH u,d, ds, dt, preferred_styles
+            WHERE size([style IN preferred_styles WHERE style = ds.name]) > 0 OR size(preferred_styles) = 0
 
-            WITH d, 
+            WITH u,d, 
                 COLLECT(DISTINCT ds.name) AS tags, 
                 COLLECT(DISTINCT dt.name) AS destinationType
 
-            RETURN d.name AS name,
+            RETURN u.id as user_id,
+                   d.id as id,
+                   d.name AS name,
                    d.description AS description,
                    tags,
                    destinationType AS destinationType,
-                   'Destination' AS type
-
+                  'Destination' AS item_type 
+            
             UNION
 
             MATCH (u:User {id: $user_id})
@@ -161,78 +203,94 @@ class ContentBasedFetcher:
             MATCH (e:Event)
             MATCH (e)-[:HAD_STYLE]->(es:Tag)
             WHERE (style IS NULL OR (e)-[:HAD_STYLE]->(:Tag {name: style}))
-
-            WITH e, 
+            WITH u,e, 
                 COLLECT(DISTINCT es.name) AS tags
 
-           RETURN e.name AS name,
+           RETURN  u.id as user_id,
+                   e.id as id, 
+                   e.name AS name,
                    e.description AS description,
                    tags,
                    NULL AS destinationType,
-                   'Event' AS type
-            LIMIT $limit
+                   'Event' AS item_type 
                 """
         params = {
-            "user_id": user_id,
-            "limit": limit
+            "user_id": user_id
         }
         records = self.db.execute(query, params)
-        results = [{"name": record["name"],
+        results = [{'user': record['user_id'],
+                    "item": record['id'],
+                    "item_type": record["item_type"],
+                    "name": record["name"],
                     "description": record["description"],
                     "tags": record["tags"],
-                    "destinationType": record["destinationType"],
-                    "type": record["type"]} for record in records]
-
+                    "destinationType": record["destinationType"]} for record in records]
         styles = self.get_user_styles(user_id)
         return results, styles
 
-    def fetch_existing_user_data(self, user_id=None, limit=15):
+    def fetch_existing_user_data(self, new_user=False, user_id=None):
         query = """
-        MATCH (u:User {id: $user_id})
+            MATCH (u:User {id: $user_id})-[:VISITED]->(d1:Destination)
+            MATCH (d1)-[:HAD_STYLE]->(preferredTag:Tag)
 
-        OPTIONAL MATCH (u)-[:VISITED]->(d:Destination)
-        OPTIONAL MATCH (d)-[:HAD_STYLE]->(ds:Tag)
-        OPTIONAL MATCH (d)-[:HAD_TYPE]->(dt:DestinationType)
-        
-        WITH d, 
-        COLLECT(DISTINCT ds.name) AS tags, 
-        COLLECT(DISTINCT dt.name) AS destinationType
-                
-        RETURN d.name AS name,
-               d.description AS description,
-               tags AS tags,
-               destinationType AS destinationType,
-              'Destination' AS type
-        
-        UNION
-        
-        MATCH (u:User {id: $user_id})
-        OPTIONAL MATCH (u)-[:ATTEND]->(e:Event)
-        OPTIONAL MATCH (e)-[:HAD_STYLE]->(es:Tag)
-        
-        WITH e, 
-        COLLECT(DISTINCT es.name) AS tags
-        
-        RETURN e.name AS name,
-               e.description AS description,
-               tags AS tags,
-               NULL AS destinationType,
-               'Event' AS type
-        LIMIT $limit
+            WITH u, COLLECT(DISTINCT preferredTag.name) AS userPreferredTags
+
+            MATCH (d2:Destination)
+            WHERE NOT (u)-[:VISITED]->(d2) AND NOT (u)-[:FOLLOWED]->(d2)
+            OPTIONAL MATCH (d2)-[:HAD_STYLE]->(tag:Tag)
+            OPTIONAL MATCH (d2)-[:HAD_TYPE]->(dt:DestinationType)
+
+            WITH u,d2, 
+                COLLECT(DISTINCT tag.name) AS tags, 
+                COLLECT(DISTINCT dt.name) AS destinationType, 
+                userPreferredTags
+            WHERE size([tag IN tags WHERE tag IN userPreferredTags]) > 0
+
+            RETURN u.id as user_id,
+                d2.id as id,
+                d2.name AS name,
+                d2.description AS description,
+                tags AS tags,
+                destinationType AS destinationType,
+                'Destination' AS item_type
+
+            UNION ALL
+
+            MATCH (u:User {id: $user_id})-[:VISITED]->(d1:Destination)
+            MATCH (d1)-[:HAD_STYLE]->(preferredTag:Tag)
+
+            WITH u, COLLECT(DISTINCT preferredTag.name) AS userPreferredTags
+
+            MATCH (e2:Event)
+            WHERE NOT (u)-[:ATTEND]->(e2)
+            OPTIONAL MATCH (e2)-[:HAD_STYLE]->(etag:Tag)
+
+            WITH u,e2, 
+                COLLECT(DISTINCT etag.name) AS tags, 
+                userPreferredTags
+            WHERE size([tag IN tags WHERE tag IN userPreferredTags]) > 0
+
+            RETURN u.id as user_id,
+                e2.id as id,
+                e2.name AS name,
+                e2.description AS description,
+                tags AS tags,
+                NULL AS destinationType,
+                'Event' AS item_type
+
         """
         params = {
             "user_id": user_id,
-            "limit": limit if limit is not None else 10
         }
         records = self.db.execute(query, params)
 
-        records = self.db.execute(query, params)
-        results = [{"name": record["name"],
+        results = [{'user': record['user_id'],
+                    "item": record['id'],
+                    "item_type": record["item_type"],
+                    "name": record["name"],
                     "description": record["description"],
                     "tags": record["tags"],
-                    "destinationType": record["destinationType"],
-                    "type": record["type"]} for record in records]
-
+                    "destinationType": record["destinationType"]} for record in records]
         styles = self.get_user_styles(user_id)
         return results, styles
 
@@ -249,7 +307,7 @@ if __name__ == "__main__":
 
     # #4. Fetch Content-Based Data (Example User)
     content_fetcher = ContentBasedFetcher(db_client)
-    example_user_id = "99ae6489-05d2-49df-bb62-490a2a3f707b"
+    example_user_id = "2270bcf5-4e6c-479a-a882-cea74efc7e2e"
     example_limit = 10
 
     print(f"\n--- Content-Based Fetching for User: {example_user_id} ---")
@@ -261,7 +319,7 @@ if __name__ == "__main__":
     print("Recommended Data Sample:")
 
     for item in new_data[:5]:
-        print(f"  - {item['type']}: {item['name']}, Tags: {item['tags']}")
+        print(f"  - {item['item_type']}: {item['name']}, Tags: {item['tags']}")
 
     print(
         f"\nFetching 'existing user' activity data (limit {example_limit})...")
@@ -272,66 +330,9 @@ if __name__ == "__main__":
     print("Visited/Attended Data Sample:")
     for item in existing_data[:5]:
         # Example to print the first row
-        print(f"  - {item['type']}: {item['name']}, Tags: {item['tags']}")
+        print(f"  - {item['item_type']}: {item['name']}, Tags: {item['tags']}")
 
     if not existing_data:
         print("  (No data found)")
 
     db_client.close()
-
-    """# Neo4j Data Fetchers for Recommendation System
-
-This repository contains Python classes designed to interact with a Neo4j graph database to fetch data relevant for building recommendation systems. It includes:
-
-1.  A client class (`Neo4jClient`) to manage the connection and execution of Cypher queries against a Neo4j database.
-2.  An interaction fetcher class (`InteractionsFetcher`) to retrieve user-item interactions (e.g., visits, wishes, reviews) with associated weights and normalization, suitable for collaborative filtering approaches.
-3.  A content-based fetcher class (`ContentBasedFetcher`) to retrieve item features and user preferences/history, suitable for content-based filtering approaches.
-
-## Features
-
-*   **Neo4j Connection Management:** Securely connects to a Neo4j instance using credentials from environment variables. Handles connection verification and closure.
-*   **Robust Query Execution:** Executes Cypher queries with parameter support and basic error handling.
-*   **Interaction Data Retrieval:** Fetches interactions between `User` nodes and `Trip`, `Destination`, or `Event` nodes.
-*   **Interaction Weighting:** Assigns predefined weights to different interaction types (e.g., `VISITED`, `WISHED`).
-*   **Interaction Normalization:** Calculates a normalized interaction score (`avg`) per user based on their interaction weights using the formula `(weight - user_mean_weight) / (user_max_weight - user_min_weight)`.
-*   **Content Data Retrieval:**
-    *   Fetches potential items (`Destination`, `Event`) for *new users* based on their profile preferences (activity, duration, group size, style tags).
-    *   Fetches items (`Destination`, `Event`) that an *existing user* has previously interacted with (`VISITED`, `ATTEND`).
-    *   Retrieves user style preferences (`Tag` nodes connected via `HAD_STYLE`).
-*   **Pandas Integration:** Returns fetched interaction data as a structured Pandas DataFrame.
-
-## Prerequisites
-
-*   Python 3.x
-*   A running Neo4j database instance.
-*   Required Python packages:
-    *   `neo4j`
-    *   `pandas`
-    *   `python-dotenv`
-
-## Installation
-
-1.  **Clone the repository (if applicable):**
-    ```bash
-    git clone <your-repo-url>
-    cd <your-repo-directory>
-    ```
-
-2.  **Install dependencies:**
-    ```bash
-    pip install neo4j pandas python-dotenv
-    ```
-    Alternatively, if you have a `requirements.txt` file:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-## Configuration
-
-The application requires Neo4j connection details to be set as environment variables. Create a `.env` file in the root directory of your project with the following content:
-
-```dotenv
-# .env file
-NEO4J_URI=bolt://your_neo4j_host:7687 # Or neo4j://, neo4j+s:// etc.
-NEO4J_USERNAME=your_neo4j_username
-NEO4J_PASSWORD=your_neo4j_password"""

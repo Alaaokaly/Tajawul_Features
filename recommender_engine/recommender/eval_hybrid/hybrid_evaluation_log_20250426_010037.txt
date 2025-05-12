@@ -1,0 +1,73 @@
+=== Hybrid Recommender Evaluation Started at 20250426_010037 ===
+Loading data...
+Data loaded: 11893 interactions, 2016 users
+Initializing CF models...
+Fitting User-based CF model...
+Fitting Item-based CF model...
+Creating hybrid recommender...
+Selecting test users...
+Using 1000 test users for evaluation
+
+Evaluating User-based CF model...
+User-based CF metrics:
+  precision: 0.0053
+  recall: 0.0606
+  ndcg: 0.0340
+  hit_rate: 0.1320
+  mrr: 0.0102
+  coverage: 0.1191
+  diversity: 0.0107
+  novelty: 22.6054
+  evaluated_users: 1000.0000
+
+Evaluating Item-based CF model...
+Item-based CF metrics:
+  precision: 0.0063
+  recall: 0.0728
+  ndcg: 0.0398
+  hit_rate: 0.1510
+  mrr: 0.0120
+  coverage: 0.9915
+  diversity: 0.6730
+  novelty: 22.3123
+  evaluated_users: 1000.0000
+
+Evaluating Hybrid model...
+Hybrid model metrics:
+  precision: 0.0073
+  recall: 0.0741
+  ndcg: 0.0456
+  hit_rate: 0.1590
+  mrr: 0.0168
+  coverage: 1.8723
+  diversity: 0.7984
+  novelty: 19.4285
+  evaluated_users: 692.0000
+
+Evaluating Hybrid model with epsilon-greedy exploration...
+Epsilon-greedy results:
+   epsilon  precision    recall  diversity    novelty  evaluated_users
+0      0.0   0.007270  0.074085   0.798358  19.428524              692
+1      0.1   0.007053  0.071271   0.837135  19.331186              724
+2      0.2   0.006471  0.064365   0.854876  20.116251              724
+3      0.3   0.006671  0.067127   0.868105  20.902569              724
+4      0.4   0.006943  0.066713   0.877665  21.702422              724
+5      0.5   0.006341  0.063490   0.888513  21.753989              724
+Epsilon-greedy results saved to eval_hybrid/hybrid_epsilon_results_20250426_010037.csv
+
+Best epsilon for diversity: 0.5
+Best epsilon for precision: 0.0
+
+Comparing all models:
+
+Model comparison:
+                precision    recall      ndcg  hit_rate       mrr  coverage  diversity    novelty  evaluated_users  epsilon
+User-based CF    0.005346  0.060633  0.033981   0.13200  0.010163  0.119149   0.010685  22.605363           1000.0      NaN
+Item-based CF    0.006308  0.072767  0.039752   0.15100  0.011956  0.991489   0.673036  22.312285           1000.0      NaN
+Hybrid           0.007270  0.074085  0.045587   0.15896  0.016757  1.872340   0.798358  19.428524            692.0      NaN
+Hybrid+Epsilon   0.007270  0.074085       NaN       NaN       NaN       NaN   0.798358  19.428524            692.0      0.0
+Model comparison saved to eval_hybrid/model_comparison_20250426_010037.csv
+Comparison plot saved to eval_hybrid/model_comparison_20250426_010037.png
+Comprehensive evaluation report saved to eval_hybrid/hybrid_evaluation_report.md
+
+=== Hybrid Evaluation Completed at 20250426_024458 ===
