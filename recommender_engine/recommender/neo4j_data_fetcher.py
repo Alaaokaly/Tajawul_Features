@@ -121,19 +121,42 @@ class ContentBasedFetcher:
     def __init__(self, db: Neo4jClient):
         self.db = db
 
-    def get_user_styles(self, user_id):
-        query = """MATCH (u:User {id: $user_id})-[:PREFERED_STYLE]->(s:Tag)
-        RETURN COLLECT(s.name) AS style_name"""
+    def get_user_styles(self, user_id=None):
+        """Get user styles for single user or all users"""
+        if user_id:
+            query = """MATCH (u:User {id: $user_id})-[:PREFERED_ACTIVITY]->(s:Tag)
+            RETURN u.id as user_id, COLLECT(s.name) AS style_names"""
+            params = {"user_id": user_id}
+        else:
+            query = """MATCH (u:User)-[:PREFERED_ACTIVITY]->(s:Tag)
+            RETURN u.id as user_id, COLLECT(s.name) AS style_names"""
+            params = {}
+        
+        records = self.db.execute(query, params)
+        if user_id:
+            return records[0]["style_names"] if records else []
+        else:
+            return {record["user_id"]: record["style_names"] for record in records}
 
-        records = self.db.execute(query, {"user_id": user_id})
-        return [record["style_name"] for record in records]  # styles
+    def get_all_user_styles(self):
+        """Get styles for all users"""
+        return self.get_user_styles()
 
-    def get_user_interactions(self, user_id):
-        query = """
-                MATCH (u:User {id: $user_id})-[r]->(d:Destination)
-                WHERE type(r) IN ['VISITED', 'FOLLOWED', 'FAVORITE', 'WISHED','CREATED']
-                with u,d
-                MATCH (d)-[:HAD_STYLE]->(t:Tag)
+    def get_user_interactions(self, user_id=None):
+        """Get user interactions for single user or all users"""
+        if user_id:
+            user_filter = "MATCH (u:User {id: $user_id})"
+            params = {"user_id": user_id}
+        else:
+            user_filter = "MATCH (u:User)"
+            params = {}
+            
+        query = f"""
+                {user_filter}
+                MATCH (u)-[r]->(d:Destination)
+                WHERE type(r) IN ['VISITED', 'FOLLOWED', 'FAVORITED', 'WISHED','CREATED']
+                WITH u, d
+                MATCH (d)-[:HAD_TAG]->(t:Tag)
                 WITH u, d, collect(DISTINCT t.name) AS tags
                 RETURN u.id as user,
                        d.id as item,
@@ -142,23 +165,22 @@ class ContentBasedFetcher:
                        d.description as description,
                        1 as score
                         
-               Union
+               UNION
 
-                MATCH (u:User {id: $user_id})-[r]->(e:Event)
-                WHERE type(r) IN ['ATTEND', 'FOLLOWED', 'FAVORITE', 'WISHED','CREATED']
-                with u,e
-                Match (e) -[r]->(t:Tag)
-                With u,e, collect(DISTINCT t.name) As tags
-                Return  u.id as user,
-                        e.id as item,
-                        "Event" as item_type,
-                        tags,
-                        e.description as description,
-                        1 as score
-                
-        
+                {user_filter}
+                MATCH (u)-[r]->(e:Event)
+                WHERE type(r) IN ['CREATED', 'FOLLOWED', 'FAVORITED', 'WISHED']
+                WITH u, e
+                MATCH (e)-[:HAD_TAG]->(t:Tag)
+                WITH u, e, collect(DISTINCT t.name) AS tags
+                RETURN u.id as user,
+                       e.id as item,
+                       "Event" as item_type,
+                       tags,
+                       e.description as description,
+                       1 as score
         """
-        params = {"user_id": user_id}
+        
         records = self.db.execute(query, params)
         results = [{'user': record['user'],
                     'item': record['item'],
@@ -169,20 +191,32 @@ class ContentBasedFetcher:
                     } for record in records]
         return results
 
-    def fetch_new_user_data(self, new_user=True, user_id=None):
-        query = """
-            MATCH (u:User {id: $user_id})
-            OPTIONAL MATCH (u)-[:PREFERED_STYLE]->(s) 
+    def get_all_user_interactions(self):
+        """Get interactions for all users"""
+        return self.get_user_interactions()
+
+    def fetch_new_user_data(self, user_id=None):
+        """Fetch data for new users (single user or all users)"""
+        if user_id:
+            user_filter = "MATCH (u:User {id: $user_id})"
+            params = {"user_id": user_id}
+        else:
+            user_filter = "MATCH (u:User)"
+            params = {}
+            
+        query = f"""
+            {user_filter}
+            OPTIONAL MATCH (u)-[:PREFERED_ACTIVITY]->(s:Tag) 
             WITH u, COLLECT(s.name) AS preferred_styles
 
             MATCH (d:Destination)
-            OPTIONAL MATCH (d)-[:HAD_STYLE]->(ds:Tag)
-            OPTIONAL MATCH (d)-[:HAD_TYPE]->(dt:DestinationType)
+            OPTIONAL MATCH (d)-[:HAD_TAG]->(ds:Tag)
+            OPTIONAL MATCH (d)-[:HAD_DESTINATION_TYPE]->(dt:Type)
             
-            WITH u,d, ds, dt, preferred_styles
+            WITH u, d, ds, dt, preferred_styles
             WHERE size([style IN preferred_styles WHERE style = ds.name]) > 0 OR size(preferred_styles) = 0
 
-            WITH u,d, 
+            WITH u, d, 
                 COLLECT(DISTINCT ds.name) AS tags, 
                 COLLECT(DISTINCT dt.name) AS destinationType
 
@@ -192,31 +226,29 @@ class ContentBasedFetcher:
                    d.description AS description,
                    tags,
                    destinationType AS destinationType,
-                  'Destination' AS item_type 
+                   'Destination' AS item_type 
             
             UNION
 
-            MATCH (u:User {id: $user_id})
-            OPTIONAL MATCH (u)-[:PREFERED_STYLE]->(s)
+            {user_filter}
+            OPTIONAL MATCH (u)-[:PREFERED_ACTIVITY]->(s:Tag)
             WITH u, s.name AS style
 
             MATCH (e:Event)
-            MATCH (e)-[:HAD_STYLE]->(es:Tag)
-            WHERE (style IS NULL OR (e)-[:HAD_STYLE]->(:Tag {name: style}))
-            WITH u,e, 
+            MATCH (e)-[:HAD_TAG]->(es:Tag)
+            WHERE (style IS NULL OR (e)-[:HAD_TAG]->(:Tag {{name: style}}))
+            WITH u, e, 
                 COLLECT(DISTINCT es.name) AS tags
 
-           RETURN  u.id as user_id,
-                   e.id as id, 
-                   e.name AS name,
-                   e.description AS description,
-                   tags,
-                   NULL AS destinationType,
-                   'Event' AS item_type 
-                """
-        params = {
-            "user_id": user_id
-        }
+           RETURN u.id as user_id,
+                  e.id as id, 
+                  e.name AS name,
+                  e.description AS description,
+                  tags,
+                  NULL AS destinationType,
+                  'Event' AS item_type 
+        """
+        
         records = self.db.execute(query, params)
         results = [{'user': record['user_id'],
                     "item": record['id'],
@@ -225,22 +257,40 @@ class ContentBasedFetcher:
                     "description": record["description"],
                     "tags": record["tags"],
                     "destinationType": record["destinationType"]} for record in records]
-        styles = self.get_user_styles(user_id)
-        return results, styles
+        
+        if user_id:
+            styles = self.get_user_styles(user_id)
+            return results, styles
+        else:
+            styles = self.get_all_user_styles()
+            return results, styles
 
-    def fetch_existing_user_data(self, new_user=False, user_id=None):
-        query = """
-            MATCH (u:User {id: $user_id})-[:VISITED]->(d1:Destination)
-            MATCH (d1)-[:HAD_STYLE]->(preferredTag:Tag)
+    def fetch_all_new_user_data(self):
+        """Fetch data for all new users"""
+        return self.fetch_new_user_data()
+
+    def fetch_existing_user_data(self, user_id=None):
+        """Fetch data for existing users (single user or all users)"""
+        if user_id:
+            user_filter = "MATCH (u:User {id: $user_id})"
+            params = {"user_id": user_id}
+        else:
+            user_filter = "MATCH (u:User)"
+            params = {}
+            
+        query = f"""
+            {user_filter}
+            MATCH (u)-[:VISITED]->(d1:Destination)
+            MATCH (d1)-[:HAD_TAG]->(preferredTag:Tag)
 
             WITH u, COLLECT(DISTINCT preferredTag.name) AS userPreferredTags
 
             MATCH (d2:Destination)
             WHERE NOT (u)-[:VISITED]->(d2) AND NOT (u)-[:FOLLOWED]->(d2)
-            OPTIONAL MATCH (d2)-[:HAD_STYLE]->(tag:Tag)
-            OPTIONAL MATCH (d2)-[:HAD_TYPE]->(dt:DestinationType)
+            OPTIONAL MATCH (d2)-[:HAD_TAG]->(tag:Tag)
+            OPTIONAL MATCH (d2)-[:HAD_DESTINATION_TYPE]->(dt:Type)
 
-            WITH u,d2, 
+            WITH u, d2, 
                 COLLECT(DISTINCT tag.name) AS tags, 
                 COLLECT(DISTINCT dt.name) AS destinationType, 
                 userPreferredTags
@@ -256,16 +306,17 @@ class ContentBasedFetcher:
 
             UNION ALL
 
-            MATCH (u:User {id: $user_id})-[:VISITED]->(d1:Destination)
-            MATCH (d1)-[:HAD_STYLE]->(preferredTag:Tag)
+            {user_filter}
+            MATCH (u)-[:VISITED]->(d1:Destination)
+            MATCH (d1)-[:HAD_TAG]->(preferredTag:Tag)
 
             WITH u, COLLECT(DISTINCT preferredTag.name) AS userPreferredTags
 
             MATCH (e2:Event)
-            WHERE NOT (u)-[:ATTEND]->(e2)
-            OPTIONAL MATCH (e2)-[:HAD_STYLE]->(etag:Tag)
+            WHERE NOT (u)-[:CREATED]->(e2) AND NOT (u)-[:FOLLOWED]->(e2) AND NOT (u)-[:FAVORITED]->(e2)
+            OPTIONAL MATCH (e2)-[:HAD_TAG]->(etag:Tag)
 
-            WITH u,e2, 
+            WITH u, e2, 
                 COLLECT(DISTINCT etag.name) AS tags, 
                 userPreferredTags
             WHERE size([tag IN tags WHERE tag IN userPreferredTags]) > 0
@@ -277,13 +328,9 @@ class ContentBasedFetcher:
                 tags AS tags,
                 NULL AS destinationType,
                 'Event' AS item_type
-
         """
-        params = {
-            "user_id": user_id,
-        }
+        
         records = self.db.execute(query, params)
-
         results = [{'user': record['user_id'],
                     "item": record['id'],
                     "item_type": record["item_type"],
@@ -291,10 +338,183 @@ class ContentBasedFetcher:
                     "description": record["description"],
                     "tags": record["tags"],
                     "destinationType": record["destinationType"]} for record in records]
-        styles = self.get_user_styles(user_id)
+        
+        if user_id:
+            styles = self.get_user_styles(user_id)
+            return results, styles
+        else:
+            styles = self.get_all_user_styles()
+            return results, styles
+
+    def fetch_all_existing_user_data(self):
+        """Fetch data for all existing users"""
+        return self.fetch_existing_user_data()
+
+    def get_recommendations_for_all_users(self, user_type='existing'):
+        """Get recommendations for all users based on their type"""
+        if user_type == 'new':
+            return self.fetch_all_new_user_data()
+        else:
+            return self.fetch_all_existing_user_data()
+
+    def get_user_recommendations_by_batch(self, user_ids, user_type='existing', batch_size=100):
+        """Process users in batches to avoid memory issues with large datasets"""
+        all_results = []
+        all_styles = {}
+        
+        for i in range(0, len(user_ids), batch_size):
+            batch_ids = user_ids[i:i + batch_size]
+            
+            # Create batch query
+            user_filter = f"MATCH (u:User) WHERE u.id IN {batch_ids}"
+            
+            if user_type == 'new':
+                results, styles = self._fetch_batch_new_user_data(batch_ids)
+            else:
+                results, styles = self._fetch_batch_existing_user_data(batch_ids)
+            
+            all_results.extend(results)
+            all_styles.update(styles)
+        
+        return all_results, all_styles
+
+    def _fetch_batch_new_user_data(self, user_ids):
+        """Helper method for batch processing new users"""
+        query = """
+            MATCH (u:User) WHERE u.id IN $user_ids
+            OPTIONAL MATCH (u)-[:PREFERED_ACTIVITY]->(s:Tag) 
+            WITH u, COLLECT(s.name) AS preferred_styles
+
+            MATCH (d:Destination)
+            OPTIONAL MATCH (d)-[:HAD_TAG]->(ds:Tag)
+            OPTIONAL MATCH (d)-[:HAD_DESTINATION_TYPE]->(dt:Type)
+            
+            WITH u, d, ds, dt, preferred_styles
+            WHERE size([style IN preferred_styles WHERE style = ds.name]) > 0 OR size(preferred_styles) = 0
+
+            WITH u, d, 
+                COLLECT(DISTINCT ds.name) AS tags, 
+                COLLECT(DISTINCT dt.name) AS destinationType
+
+            RETURN u.id as user_id,
+                   d.id as id,
+                   d.name AS name,
+                   d.description AS description,
+                   tags,
+                   destinationType AS destinationType,
+                   'Destination' AS item_type 
+            
+            UNION
+
+            MATCH (u:User) WHERE u.id IN $user_ids
+            OPTIONAL MATCH (u)-[:PREFERED_ACTIVITY]->(s:Tag)
+            WITH u, s.name AS style
+
+            MATCH (e:Event)
+            MATCH (e)-[:HAD_TAG]->(es:Tag)
+            WHERE (style IS NULL OR (e)-[:HAD_TAG]->(:Tag {name: style}))
+            WITH u, e, 
+                COLLECT(DISTINCT es.name) AS tags
+
+           RETURN u.id as user_id,
+                  e.id as id, 
+                  e.name AS name,
+                  e.description AS description,
+                  tags,
+                  NULL AS destinationType,
+                  'Event' AS item_type 
+        """
+        
+        records = self.db.execute(query, {"user_ids": user_ids})
+        results = [{'user': record['user_id'],
+                    "item": record['id'],
+                    "item_type": record["item_type"],
+                    "name": record["name"],
+                    "description": record["description"],
+                    "tags": record["tags"],
+                    "destinationType": record["destinationType"]} for record in records]
+        
+        # Get styles for batch
+        style_query = """MATCH (u:User)-[:PREFERED_ACTIVITY]->(s:Tag)
+                        WHERE u.id IN $user_ids
+                        RETURN u.id as user_id, COLLECT(s.name) AS style_names"""
+        style_records = self.db.execute(style_query, {"user_ids": user_ids})
+        styles = {record["user_id"]: record["style_names"] for record in style_records}
+        
         return results, styles
 
+    def _fetch_batch_existing_user_data(self, user_ids):
+        """Helper method for batch processing existing users"""
+        query = """
+            MATCH (u:User) WHERE u.id IN $user_ids
+            MATCH (u)-[:VISITED]->(d1:Destination)
+            MATCH (d1)-[:HAD_TAG]->(preferredTag:Tag)
 
+            WITH u, COLLECT(DISTINCT preferredTag.name) AS userPreferredTags
+
+            MATCH (d2:Destination)
+            WHERE NOT (u)-[:VISITED]->(d2) AND NOT (u)-[:FOLLOWED]->(d2)
+            OPTIONAL MATCH (d2)-[:HAD_TAG]->(tag:Tag)
+            OPTIONAL MATCH (d2)-[:HAD_DESTINATION_TYPE]->(dt:Type)
+
+            WITH u, d2, 
+                COLLECT(DISTINCT tag.name) AS tags, 
+                COLLECT(DISTINCT dt.name) AS destinationType, 
+                userPreferredTags
+            WHERE size([tag IN tags WHERE tag IN userPreferredTags]) > 0
+
+            RETURN u.id as user_id,
+                d2.id as id,
+                d2.name AS name,
+                d2.description AS description,
+                tags AS tags,
+                destinationType AS destinationType,
+                'Destination' AS item_type
+
+            UNION ALL
+
+            MATCH (u:User) WHERE u.id IN $user_ids
+            MATCH (u)-[:VISITED]->(d1:Destination)
+            MATCH (d1)-[:HAD_TAG]->(preferredTag:Tag)
+
+            WITH u, COLLECT(DISTINCT preferredTag.name) AS userPreferredTags
+
+            MATCH (e2:Event)
+            WHERE NOT (u)-[:CREATED]->(e2) AND NOT (u)-[:FOLLOWED]->(e2) AND NOT (u)-[:FAVORITED]->(e2)
+            OPTIONAL MATCH (e2)-[:HAD_TAG]->(etag:Tag)
+
+            WITH u, e2, 
+                COLLECT(DISTINCT etag.name) AS tags, 
+                userPreferredTags
+            WHERE size([tag IN tags WHERE tag IN userPreferredTags]) > 0
+
+            RETURN u.id as user_id,
+                e2.id as id,
+                e2.name AS name,
+                e2.description AS description,
+                tags AS tags,
+                NULL AS destinationType,
+                'Event' AS item_type
+        """
+        
+        records = self.db.execute(query, {"user_ids": user_ids})
+        results = [{'user': record['user_id'],
+                    "item": record['id'],
+                    "item_type": record["item_type"],
+                    "name": record["name"],
+                    "description": record["description"],
+                    "tags": record["tags"],
+                    "destinationType": record["destinationType"]} for record in records]
+        
+        # Get styles for batch
+        style_query = """MATCH (u:User)-[:PREFERED_ACTIVITY]->(s:Tag)
+                        WHERE u.id IN $user_ids
+                        RETURN u.id as user_id, COLLECT(s.name) AS style_names"""
+        style_records = self.db.execute(style_query, {"user_ids": user_ids})
+        styles = {record["user_id"]: record["style_names"] for record in style_records}
+        
+        return results, styles
+    
 if __name__ == "__main__":
 
     db_client = Neo4jClient()
@@ -307,14 +527,14 @@ if __name__ == "__main__":
 
     # #4. Fetch Content-Based Data (Example User)
     content_fetcher = ContentBasedFetcher(db_client)
-    example_user_id = "2270bcf5-4e6c-479a-a882-cea74efc7e2e"
+    example_user_id = "222e1a80-a195-4f19-be67-99a05fd081dd"
     example_limit = 10
 
     print(f"\n--- Content-Based Fetching for User: {example_user_id} ---")
 
     print(f"\nFetching 'new user' recommendations (limit {example_limit})...")
     new_data, new_styles = content_fetcher.fetch_new_user_data(
-        example_user_id, example_limit)
+        example_user_id)
     print(f"User Styles: {new_styles}")
     print("Recommended Data Sample:")
 
@@ -324,7 +544,7 @@ if __name__ == "__main__":
     print(
         f"\nFetching 'existing user' activity data (limit {example_limit})...")
     existing_data, existing_styles = content_fetcher.fetch_existing_user_data(
-        example_user_id, example_limit)
+        example_user_id)
 
     print(f"User Styles: {existing_styles}")
     print("Visited/Attended Data Sample:")
