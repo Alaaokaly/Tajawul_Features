@@ -23,7 +23,7 @@ class ContentBasedRecommender:
 
         if self.new_user:
             self.results, self.user_styles = self.content_fetcher.fetch_new_user_data(
-                new_user=self.new_user, user_id=self.user_id
+                 user_id=self.user_id
             )
         else:
             self.results, self.user_styles = self.content_fetcher.fetch_existing_user_data(
@@ -164,9 +164,9 @@ if __name__ == '__main__':
     cbf = ContentBasedRecommender(
         content_fetcher,
         new_user=True,
-        user_id="43c2b772-c135-4791-b5fd-d073a106217b",
+        user_id="222e1a80-a195-4f19-be67-99a05fd081dd",
     )
     print("\nALL RECOMMENDATIONS:")
-    All_recommendations = cbf.recommend(top_n=200, use_mmr=True)
+    All_recommendations = cbf.recommend(top_n=5, use_mmr=True)
     print(All_recommendations)
     db_client.close()
